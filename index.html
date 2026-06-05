@@ -37,11 +37,24 @@
 </head>
 
 <body
-  class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-sans transition-colors duration-200 relative overflow-x-hidden pb-20 md:pb-0">
+  class="min-h-screen bg-slate-50 dark:bg-[#070514] text-slate-800 dark:text-slate-200 font-sans transition-colors duration-200 relative overflow-x-hidden pb-20 md:pb-0">
+
+  <!-- Premium Ambient Glassmorphism Backdrops - Inspired by visual mesh -->
+  <div class="absolute inset-0 -z-30 overflow-hidden pointer-events-none">
+    <!-- Blob 1: Violet/Pink -->
+    <div class="absolute -top-[10%] -left-[10%] w-[35rem] h-[35rem] sm:w-[45rem] sm:h-[45rem] rounded-full bg-violet-500/10 dark:bg-violet-600/8 blur-[100px] sm:blur-[130px] animate-blob-1"></div>
+    <!-- Blob 2: Cyan/Emerald -->
+    <div class="absolute top-[35%] -right-[10%] w-[35rem] h-[35rem] sm:w-[50rem] sm:h-[50rem] rounded-full bg-cyan-500/10 dark:bg-cyan-500/8 blur-[100px] sm:blur-[140px] animate-blob-2"></div>
+    <!-- Blob 3: Rose/Pink -->
+    <div class="absolute -bottom-[10%] left-[10%] w-[38rem] h-[38rem] sm:w-[48rem] sm:h-[48rem] rounded-full bg-rose-500/10 dark:bg-rose-600/8 blur-[100px] sm:blur-[130px] animate-blob-3"></div>
+    
+    <!-- Fine Dot Grid Overlay -->
+    <div class="absolute inset-0 bg-[radial-gradient(#00000003_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff02_1px,transparent_1px)] [background-size:32px_32px] mix-blend-overlay"></div>
+  </div>
 
   <!-- Header Navigation -->
   <header
-    class="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors shadow-sm">
+    class="sticky top-0 z-40 bg-white/80 dark:bg-[#070514]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/60 transition-colors shadow-sm">
     <div
       class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-row items-center justify-between gap-4 font-sans">
 
@@ -63,9 +76,9 @@
 
       <!-- Center: Tabs Switcher Capsule -->
       <div
-        class="hidden md:flex bg-slate-100 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-full p-1 shadow-sm">
+        class="hidden md:flex bg-slate-100/80 dark:bg-[#0f0b2c]/60 border border-slate-200 dark:border-slate-800/80 rounded-full p-1 shadow-sm backdrop-blur-sm">
         <button id="tab-dashboard" onclick="switchTab('dashboard')"
-          class="px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm">
+          class="px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer bg-gradient-to-r from-violet-600 to-pink-500 text-white shadow-sm">
           Workspace
         </button>
         <button id="tab-tasks" onclick="switchTab('tasks')"
@@ -718,8 +731,8 @@
   </div>
 
   <!-- Mobile Bottom Navigation Bar -->
-  <div class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 md:hidden px-2 py-1.5 flex items-center justify-around shadow-lg">
-    <button id="mobile-tab-dashboard" onclick="switchTab('dashboard')" class="flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all duration-205 cursor-pointer text-slate-900 dark:text-white font-bold">
+  <div class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#070514]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800/80 md:hidden px-2 py-1.5 flex items-center justify-around shadow-lg">
+    <button id="mobile-tab-dashboard" onclick="switchTab('dashboard')" class="flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all duration-205 cursor-pointer text-violet-600 dark:text-violet-400 font-bold">
       <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
       <span class="text-[9px] font-medium tracking-wide">Workspace</span>
     </button>

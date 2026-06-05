@@ -135,9 +135,13 @@ function switchTab(tabId) {
   const activeBtn = document.getElementById(`tab-${tabId}`);
   if (activeBtn) {
     if (tabId === 'goals') {
-      activeBtn.className = "px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer bg-emerald-600 text-white shadow-sm";
+      activeBtn.className = "px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm";
+    } else if (tabId === 'tasks') {
+      activeBtn.className = "px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer bg-gradient-to-r from-rose-500 to-orange-500 text-white shadow-sm";
+    } else if (tabId === 'thoughts') {
+      activeBtn.className = "px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-sm";
     } else {
-      activeBtn.className = "px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm";
+      activeBtn.className = "px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer bg-gradient-to-r from-violet-600 to-pink-500 text-white shadow-sm";
     }
   }
 
@@ -148,8 +152,10 @@ function switchTab(tabId) {
       activeMBtn.className = "flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all duration-205 cursor-pointer text-emerald-600 dark:text-emerald-400 font-bold";
     } else if (tabId === 'tasks') {
       activeMBtn.className = "flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all duration-205 cursor-pointer text-rose-600 dark:text-rose-500 font-bold";
+    } else if (tabId === 'thoughts') {
+      activeMBtn.className = "flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all duration-205 cursor-pointer text-cyan-600 dark:text-cyan-400 font-bold";
     } else {
-      activeMBtn.className = "flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all duration-205 cursor-pointer text-slate-900 dark:text-white font-bold";
+      activeMBtn.className = "flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all duration-205 cursor-pointer text-violet-600 dark:text-violet-400 font-bold";
     }
   }
   
