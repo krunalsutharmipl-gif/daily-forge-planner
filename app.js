@@ -112,20 +112,42 @@ function switchTab(tabId) {
   ['dashboard', 'tasks', 'goals', 'thoughts'].forEach(t => {
     document.getElementById(`content-${t}`).classList.add('hidden');
     
-    // Remove active button classes
+    // Remove active desktop button classes
     const btn = document.getElementById(`tab-${t}`);
-    btn.className = "px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200";
+    if (btn) {
+      btn.className = "px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200";
+    }
+
+    // Remove active mobile button classes
+    const mBtn = document.getElementById(`mobile-tab-${t}`);
+    if (mBtn) {
+      mBtn.className = "flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all duration-205 cursor-pointer text-slate-500 dark:text-slate-400";
+    }
   });
 
   // Show selected tab container
   document.getElementById(`content-${tabId}`).classList.remove('hidden');
   
-  // Add active button classes
+  // Add active desktop button classes
   const activeBtn = document.getElementById(`tab-${tabId}`);
-  if (tabId === 'goals') {
-    activeBtn.className = "px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer bg-emerald-600 text-white shadow-sm";
-  } else {
-    activeBtn.className = "px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm";
+  if (activeBtn) {
+    if (tabId === 'goals') {
+      activeBtn.className = "px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer bg-emerald-600 text-white shadow-sm";
+    } else {
+      activeBtn.className = "px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm";
+    }
+  }
+
+  // Add active mobile button classes
+  const activeMBtn = document.getElementById(`mobile-tab-${tabId}`);
+  if (activeMBtn) {
+    if (tabId === 'goals') {
+      activeMBtn.className = "flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all duration-205 cursor-pointer text-emerald-600 dark:text-emerald-400 font-bold";
+    } else if (tabId === 'tasks') {
+      activeMBtn.className = "flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all duration-205 cursor-pointer text-rose-600 dark:text-rose-500 font-bold";
+    } else {
+      activeMBtn.className = "flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all duration-205 cursor-pointer text-slate-900 dark:text-white font-bold";
+    }
   }
   
   renderAll();
