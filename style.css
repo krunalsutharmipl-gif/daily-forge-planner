@@ -1,0 +1,139 @@
+/* Reset custom animations to keep page static & modern */
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.25);
+  border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.15);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.45);
+}
+
+/* Redesign Premium Transitions */
+.premium-transition {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glassmorphism Card Core Base replaced with Modern Static Card */
+.glass-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0; /* slate-200 */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+.dark .glass-card {
+  background: #0f172a; /* slate-900 */
+  border: 1px solid #1e293b; /* slate-800 */
+  box-shadow: none;
+}
+
+/* Glowing Hover State Classes replaced with Modern Accent Borders */
+.glow-card-rose {
+  transition: all 0.2s ease;
+}
+.glow-card-rose:hover {
+  border-color: #fda4af; /* rose-300 */
+}
+.dark .glow-card-rose:hover {
+  border-color: #be123c; /* rose-700 */
+}
+
+.glow-card-emerald {
+  transition: all 0.2s ease;
+}
+.glow-card-emerald:hover {
+  border-color: #6ee7b7; /* emerald-300 */
+}
+.dark .glow-card-emerald:hover {
+  border-color: #047857; /* emerald-700 */
+}
+
+.glow-card-amber {
+  transition: all 0.2s ease;
+}
+.glow-card-amber:hover {
+  border-color: #fde047; /* amber-300 */
+}
+.dark .glow-card-amber:hover {
+  border-color: #b45309; /* amber-700 */
+}
+
+/* Thoughts Category Sticky Notes Styles - Clean Static Cards */
+.thought-card {
+  border-left-width: 4px;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+.dark .thought-card {
+  background: #0f172a;
+  border-top: 1px solid #1e293b;
+  border-right: 1px solid #1e293b;
+  border-bottom: 1px solid #1e293b;
+  box-shadow: none;
+}
+
+.thought-card-idea { border-left-color: #f59e0b; }
+.thought-card-reflection { border-left-color: #8b5cf6; }
+.thought-card-learning { border-left-color: #06b6d4; }
+.thought-card-note { border-left-color: #f43f5e; }
+
+/* Custom Interactive Toast Styles */
+.toast-container {
+  pointer-events: none;
+}
+.toast-item {
+  pointer-events: auto;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  animation: toastFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.toast-exit {
+  animation: toastFadeOut 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes toastFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.95);
+  }
+}
+
+/* Custom Confirmation Modal Overlay */
+.modal-overlay {
+  background: rgba(15, 23, 42, 0.4);
+}
+.dark .modal-overlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* Static Profile Avatar with Clean Accent Border */
+.profile-avatar-gradient {
+  background: linear-gradient(135deg, #f43f5e 0%, #10b981 100%);
+  padding: 2px;
+}

@@ -1,0 +1,12 @@
+{
+  "name": "daily-forge-planner",
+  "version": "1.0.0",
+  "description": "A premium, local-first interactive planner for daily schedules, targets, and thoughts.",
+  "scripts": {
+    "start": "npx live-server --port=3000",
+    "dev": "npx live-server --port=3000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

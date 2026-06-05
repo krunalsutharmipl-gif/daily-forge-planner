@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Forge Planner</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+            display: ["Outfit", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom stylesheet link -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body
+  class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-sans transition-colors duration-200 relative overflow-x-hidden">
+
+  <!-- Header Navigation -->
+  <header
+    class="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors shadow-sm">
+    <div
+      class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-4 font-sans">
+
+      <!-- Left: Logo -->
+      <div class="flex items-center gap-3">
+        <div
+          class="w-8 h-8 bg-slate-900 dark:bg-white rounded-lg flex items-center justify-center text-white dark:text-slate-900 shadow-sm">
+          <span class="font-extrabold text-base font-display">F</span>
+        </div>
+        <div>
+          <h1
+            class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight font-display flex items-baseline gap-1 leading-none">
+            Daily Forge
+            <span
+              class="text-[8px] font-mono font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">Planner</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Center: Tabs Switcher Capsule -->
+      <div
+        class="flex bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-full p-1 shadow-sm">
+        <button id="tab-dashboard" onclick="switchTab('dashboard')"
+          class="px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm">
+          Workspace
+        </button>
+        <button id="tab-tasks" onclick="switchTab('tasks')"
+          class="px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
+          Tasks
+        </button>
+        <button id="tab-goals" onclick="switchTab('goals')"
+          class="px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
+          Targets
+        </button>
+        <button id="tab-thoughts" onclick="switchTab('thoughts')"
+          class="px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-205 cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
+          Thoughts
+        </button>
+      </div>
+
+      <!-- Right: Badges & Toggle -->
+      <div class="flex items-center gap-3">
+        <!-- Sync Status Badge -->
+        <div class="flex items-center gap-1.5 text-[11px] font-mono font-semibold">
+          <span id="sync-status"
+            class="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-full">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Synced
+          </span>
+        </div>
+
+        <!-- Clock -->
+        <div
+          class="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-full">
+          <span id="clock-display">00:00 AM</span>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button id="theme-toggle" onclick="toggleTheme()"
+          class="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-950 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-full text-slate-700 dark:text-slate-300 cursor-pointer transition-all hover:scale-105 active:scale-95 flex items-center justify-center shadow-xs"
+          title="Switch Theme">
+          <i data-lucide="moon" class="w-3.5 h-3.5 text-slate-600 dark:hidden"></i>
+          <i data-lucide="sun" class="w-3.5 h-3.5 text-amber-500 hidden dark:block"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 lg:py-8">
+
+    <!-- Active Tab Containers -->
+    <div id="tab-content" class="transition-all duration-205">
+
+      <!-- 1. Workspace (Dashboard) View -->
+      <div id="content-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- Welcome Banner -->
+        <div
+          class="lg:col-span-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+          <div>
+            <h2 id="greeting-title"
+              class="text-xl sm:text-2xl font-bold tracking-tight font-display text-slate-900 dark:text-white">
+              Good morning, Forgemaker!
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xl leading-relaxed font-medium">
+              Track thoughts, checklist tasks with day-wise isolation, and log high-stakes commitments. Structured into a
+              clean, modern corporate workspace dashboard.
+            </p>
+          </div>
+          <div
+            class="flex items-center gap-2 bg-slate-100 dark:bg-slate-950 p-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 font-mono font-bold select-none">
+            <i data-lucide="shield-check" class="w-4 h-4 text-slate-900 dark:text-white"></i>
+            Productivity Portal
+          </div>
+        </div>
+
+        <!-- Left Column: User Profile & Notification Manager -->
+        <div class="lg:col-span-4 space-y-6">
+
+          <!-- User Profile Card -->
+          <div
+            class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 overflow-hidden">
+            <div class="flex items-center gap-4">
+              <!-- Avatar -->
+              <div
+                class="w-12 h-12 rounded-full profile-avatar-gradient flex items-center justify-center shadow-sm shrink-0">
+                <div
+                  class="w-full h-full rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center overflow-hidden">
+                  <span id="profile-avatar-initial"
+                    class="text-base font-extrabold text-slate-900 dark:text-white font-display">F</span>
+                </div>
+              </div>
+
+              <!-- Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <h3 id="profile-display-name"
+                    class="text-sm font-bold text-slate-900 dark:text-white truncate font-display">Forgemaker</h3>
+                  <button onclick="startProfileEdit()"
+                    class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                    title="Edit Profile">
+                    <i data-lucide="edit-2" class="w-3 h-3"></i>
+                  </button>
+                </div>
+                <p id="profile-display-bio"
+                  class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5 font-medium">Crafting daily
+                  productivity</p>
+                <div class="mt-1.5 flex">
+                  <span id="profile-rank-badge"
+                    class="text-[9px] font-mono font-bold tracking-wide uppercase px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-xs">Focus
+                    Apprentice</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Profile Edit State (Hidden by default) -->
+            <div id="profile-edit-container" class="hidden mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+              <div class="space-y-3">
+                <div>
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-1">Name</label>
+                  <input type="text" id="profile-name-input"
+                    class="w-full text-xs p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-400 dark:focus:border-slate-600 dark:text-slate-100 font-sans"
+                    placeholder="Your Name">
+                </div>
+                <div>
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-1">Bio</label>
+                  <input type="text" id="profile-bio-input"
+                    class="w-full text-xs p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-400 dark:focus:border-slate-600 dark:text-slate-100 font-sans"
+                    placeholder="Your status...">
+                </div>
+                <div class="flex justify-end gap-2">
+                  <button type="button" onclick="cancelProfileEdit()"
+                    class="text-[10px] font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800 px-2.5 py-1.5 rounded-lg transition cursor-pointer">Cancel</button>
+                  <button type="button" onclick="saveProfile()"
+                    class="text-[10px] font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-3 py-1.5 rounded-lg shadow-sm transition cursor-pointer">Save</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div
+              class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-4 relative z-10 font-sans">
+              <div class="bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider font-mono">Tasks Complete</p>
+                <p id="profile-stat-tasks" class="text-sm font-extrabold text-slate-800 dark:text-slate-200 mt-0.5">0
+                </p>
+              </div>
+              <div class="bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider font-mono">Quotient Index</p>
+                <p id="profile-stat-efficiency"
+                  class="text-sm font-extrabold text-slate-800 dark:text-slate-200 mt-0.5">0%</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notification Hub Card -->
+          <div
+            class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200">
+            <div
+              class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-slate-200 dark:border-slate-800">
+              <div>
+                <h2 class="text-base font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2 font-display">
+                  <i data-lucide="bell" class="w-4 h-4 text-slate-500 dark:text-slate-400"></i>
+                  Notification Hub
+                </h2>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-semibold">
+                  Alert logs & daily streak summaries.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2 items-center justify-between mb-4">
+              <div
+                class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2 font-mono">
+                Logs Registry
+                <span id="notif-count-badge"
+                  class="hidden bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full font-sans tracking-normal">0
+                  new</span>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="clearNotifs()"
+                  class="text-[11px] text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 px-2.5 py-1 rounded-lg transition-all cursor-pointer font-bold">
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            <!-- In-App logs list -->
+            <div id="notif-logs-list" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+              <!-- Dynamically populated or empty state -->
+            </div>
+
+            <!-- Simulation tool -->
+            <div
+              class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
+              <div class="min-w-0 pr-2">
+                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Digest Simulator</p>
+                <p class="text-[9px] text-slate-400 truncate">Trigger mock metrics warning</p>
+              </div>
+              <button onclick="simulateProductivityAlert()"
+                class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 font-bold text-[10px] px-3 py-1.5 rounded-lg shadow-xs transition-colors cursor-pointer whitespace-nowrap">
+                Push Alert
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Analysis Panel -->
+        <div class="lg:col-span-8">
+
+          <div
+            class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 mb-6">
+            <div class="flex items-center gap-2 mb-6">
+              <i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-500 dark:text-slate-400"></i>
+              <h2 class="text-base font-bold text-slate-900 dark:text-slate-50 font-display">Productivity Diagnostics &
+                Backup</h2>
+            </div>
+
+            <!-- Metric Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 font-sans">
+              <!-- Streak Metric -->
+              <div
+                class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 border-l-4 border-l-amber-500 p-4 rounded-xl flex flex-col justify-end shadow-sm hover:scale-[1.01] transition-all duration-200">
+                <p class="text-[10px] text-amber-600 dark:text-amber-500 font-bold uppercase tracking-wider font-mono">
+                  Streak</p>
+                <div class="flex items-baseline gap-2 mt-1">
+                  <span id="streak-counter"
+                    class="text-2xl font-extrabold text-slate-900 dark:text-white font-display">0</span>
+                  <span class="text-xs text-slate-500 dark:text-slate-400 font-bold">consecutive days</span>
+                </div>
+                <div class="mt-2 text-[10px] text-slate-500 dark:text-slate-400 font-semibold leading-relaxed">
+                  Keep momentum alive by logging thoughts or completing active tasks.
+                </div>
+              </div>
+
+              <!-- Tasks Metric -->
+              <div
+                class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 border-l-4 border-l-rose-500 p-4 rounded-xl flex flex-col justify-end shadow-sm hover:scale-[1.01] transition-all duration-200">
+                <p class="text-[10px] text-rose-600 dark:text-rose-500 font-bold uppercase tracking-wider font-mono">
+                  Tasks</p>
+                <div class="flex items-baseline gap-2 mt-1">
+                  <span id="tasks-percentage"
+                    class="text-2xl font-extrabold text-rose-600 dark:text-rose-500 font-display">0%</span>
+                  <span id="tasks-fraction" class="text-xs text-slate-500 dark:text-slate-400 font-bold">(0/0)</span>
+                </div>
+                <div class="mt-2 text-[10px] text-slate-500 dark:text-slate-400 font-semibold leading-relaxed">
+                  Task resolution rate within isolation timelines.
+                </div>
+              </div>
+
+              <!-- Goals Metric -->
+              <div
+                class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 border-l-4 border-l-emerald-500 p-4 rounded-xl flex flex-col justify-end shadow-sm hover:scale-[1.01] transition-all duration-200">
+                <p
+                  class="text-[10px] text-emerald-600 dark:text-emerald-500 font-bold uppercase tracking-wider font-mono">
+                  Goals</p>
+                <div class="flex items-baseline gap-2 mt-1">
+                  <span id="goals-percentage"
+                    class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-500 font-display">0%</span>
+                  <span id="goals-fraction" class="text-xs text-slate-500 dark:text-slate-400 font-bold">(0/0)</span>
+                </div>
+                <div class="mt-2 text-[10px] text-slate-500 dark:text-slate-400 font-semibold leading-relaxed">
+                  Highstakes focus commitments accomplished.
+                </div>
+              </div>
+            </div>
+
+            <!-- Rings Chart Overlay -->
+            <div id="analytics-graphic-box"
+              class="mb-6 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-5 rounded-xl">
+              <h3
+                class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-1.5 font-display">
+                <i data-lucide="award" class="w-4 h-4 text-amber-500"></i>
+                Execution Index Visualization
+              </h3>
+
+              <div class="flex flex-col sm:flex-row items-center gap-6">
+                <!-- Custom SVG ring chart -->
+                <div class="relative w-28 h-28 shrink-0">
+                  <svg class="w-full h-full -rotate-90">
+                    <circle cx="56" cy="56" r="45" class="stroke-slate-200 dark:stroke-slate-800/80 fill-none"
+                      stroke-width="8" />
+                    <circle id="svg-task-ring" cx="56" cy="56" r="45"
+                      class="stroke-rose-500 dark:stroke-rose-600 fill-none transition-all duration-500"
+                      stroke-dasharray="282.7" stroke-dashoffset="282.7" stroke-width="8" stroke-linecap="round" />
+                    <circle cx="56" cy="56" r="32" class="stroke-slate-200 dark:stroke-slate-800 fill-none"
+                      stroke-width="6" />
+                    <circle id="svg-goal-ring" cx="56" cy="56" r="32"
+                      class="stroke-emerald-500 dark:stroke-emerald-600 fill-none transition-all duration-500"
+                      stroke-dasharray="201" stroke-dashoffset="201" stroke-width="6" stroke-linecap="round" />
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col justify-center items-center">
+                    <span id="center-task-pct"
+                      class="text-xs font-extrabold text-slate-800 dark:text-slate-100">0%</span>
+                    <span class="text-[8px] text-slate-400 font-mono font-bold uppercase tracking-wider">Tasks</span>
+                  </div>
+                </div>
+
+                <!-- Explanatory Index -->
+                <div class="space-y-2.5 text-xs text-slate-600 dark:text-slate-400 flex-1 font-sans font-semibold">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></div>
+                    <span class="text-slate-800 dark:text-slate-200 font-display">Outer Ring (Tasks)</span>
+                    <span class="font-normal opacity-85">Completion rate of day-wise logs.</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></div>
+                    <span class="text-slate-800 dark:text-slate-200 font-display">Inner Ring (Goals)</span>
+                    <span class="font-normal opacity-85">Percentage of targets met.</span>
+                  </div>
+                  <p class="text-[10px] text-slate-400 leading-normal max-w-sm font-normal">
+                    Circular visual indices automatically calculate relative pacing metrics based on browser data.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Export & Import Backup actions -->
+            <div
+              class="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row flex-wrap gap-3 items-center justify-between font-sans">
+              <div class="flex flex-wrap gap-2.5 w-full sm:w-auto">
+                <button onclick="downloadBackupJSON()"
+                  class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 font-bold text-slate-700 dark:text-slate-300 text-xs py-2 px-3.5 rounded-lg transition duration-200 cursor-pointer shadow-xs">
+                  <i data-lucide="download" class="w-4 h-4"></i> Backup (JSON)
+                </button>
+                <button onclick="exportCSVData()"
+                  class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 font-bold text-slate-700 dark:text-slate-300 text-xs py-2 px-3.5 rounded-lg transition duration-200 cursor-pointer shadow-xs">
+                  <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Export CSV
+                </button>
+              </div>
+
+              <div class="w-full sm:w-auto flex flex-col items-stretch sm:items-end">
+                <input type="file" id="backup-file-input" onchange="restoreBackupJSON(event)" accept=".json"
+                  class="hidden">
+                <button onclick="document.getElementById('backup-file-input').click()"
+                  class="flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-xs py-2 px-4 rounded-lg transition duration-200 cursor-pointer shadow-xs">
+                  <i data-lucide="upload" class="w-4 h-4 animate-bounce"></i> Restore Backup
+                </button>
+                <span id="import-alert-msg" class="hidden text-[10px] font-bold mt-1 flex items-center gap-1"></span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- 2. Tasks View -->
+      <div id="content-tasks" class="hidden max-w-5xl mx-auto space-y-4">
+
+        <!-- Header Info Card -->
+        <div class="glass-card rounded-2xl p-5 flex items-center justify-between shadow-sm">
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-display">Daily
+              Schedule & Agenda</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-semibold">Checklist micro-steps and
+              isolated timeline logs.</p>
+          </div>
+          <div
+            class="bg-slate-100 dark:bg-slate-800 p-2.5 rounded-xl text-slate-700 dark:text-slate-300 shadow-xs animate-pulse">
+            <i data-lucide="list-todo" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <!-- Main Card Section -->
+        <div
+          class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500">
+
+          <!-- Past Uncompleted Warning Alert -->
+          <div id="past-uncompleted-alert"
+            class="hidden mb-6 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-xl shadow-xs">
+            <div class="flex gap-3 items-start">
+              <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-500 shrink-0 mt-0.5"></i>
+              <div class="flex-1 min-w-0">
+                <h4 id="past-alert-title" class="text-sm font-bold text-amber-900 dark:text-amber-400 font-display">
+                  Uncompleted past tasks pending</h4>
+                <p class="text-xs text-amber-800/80 dark:text-amber-400 mt-1 leading-relaxed font-semibold">
+                  Your past unfinished agenda items remain safely locked into their original days. Reschedule them to
+                  active view below.
+                </p>
+                <div id="past-alert-list" class="mt-3 space-y-2 max-h-40 overflow-y-auto pr-1 font-sans">
+                  <!-- JS handles past entries list -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Date Navigation Bar -->
+          <div
+            class="flex items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5 mb-5 font-sans">
+            <button onclick="navigateDay(-1)"
+              class="p-2 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-lg transition-all cursor-pointer shadow-xs">
+              <i data-lucide="chevron-left" class="w-4 h-4 text-slate-700 dark:text-slate-300"></i>
+            </button>
+
+            <div class="flex flex-col items-center">
+              <h2 id="task-date-header"
+                class="text-sm font-extrabold text-slate-900 dark:text-white text-center font-display uppercase tracking-wider">
+                Date
+              </h2>
+
+              <div class="flex items-center gap-2 mt-2">
+                <button onclick="setTaskDateToday()"
+                  class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 transition cursor-pointer">
+                  Today
+                </button>
+                <div class="relative flex items-center text-slate-400 dark:text-slate-300 font-mono">
+                  <i data-lucide="calendar" class="w-3 h-3 absolute left-2 pointer-events-none text-slate-400"></i>
+                  <input type="date" id="task-date-picker" onchange="setTaskDate(this.value)"
+                    class="text-[10px] font-bold bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 pl-7 pr-2 py-1.5 rounded-md focus:outline-none cursor-pointer focus:border-slate-400 dark:focus:border-slate-700">
+                </div>
+              </div>
+            </div>
+
+            <button onclick="navigateDay(1)"
+              class="p-2 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-lg transition-all cursor-pointer shadow-xs">
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-700 dark:text-slate-300"></i>
+            </button>
+          </div>
+
+          <!-- Task Creation Input Form -->
+          <form onsubmit="addTask(event)" class="flex flex-col sm:flex-row gap-2.5 mb-6">
+            <input type="text" id="new-task-input" required placeholder="Create new task..."
+              class="flex-1 text-xs p-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 font-semibold transition-all">
+
+            <div class="flex gap-2">
+              <select id="new-task-priority"
+                class="text-xs bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-2.5 py-2 focus:outline-none dark:text-slate-200 font-bold cursor-pointer">
+                <option value="low">🟢 Low Priority</option>
+                <option value="medium" selected>🟡 Medium Priority</option>
+                <option value="high">🔴 High Priority</option>
+              </select>
+
+              <button type="submit"
+                class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs px-5 py-2 rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 transition cursor-pointer shadow-sm">
+                Add Task
+              </button>
+            </div>
+          </form>
+
+          <!-- Day-Wise Task List Board -->
+          <div id="tasks-list-container" class="space-y-3 max-h-[500px] overflow-y-auto pr-1 font-sans">
+            <!-- JS populates task details -->
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- 3. Goals View -->
+      <div id="content-goals" class="hidden max-w-5xl mx-auto space-y-4">
+
+        <!-- Header Info Card -->
+        <div class="glass-card rounded-2xl p-5 flex items-center justify-between shadow-sm">
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-display">Focus
+              Targets & Commitments</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-semibold">Determine long-term achievements
+              and milestones.</p>
+          </div>
+          <div class="bg-slate-100 dark:bg-slate-800 p-2.5 rounded-xl text-slate-700 dark:text-slate-300 shadow-xs">
+            <i data-lucide="target" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <!-- Main Card Section -->
+        <div
+          class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-emerald-500 mb-6">
+
+          <!-- Overview stats row -->
+          <div
+            class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 mb-6 border-b border-slate-200 dark:border-slate-800">
+            <div>
+              <h2 class="text-base font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2 font-display">
+                <i data-lucide="target" class="w-4 h-4 text-emerald-500"></i>
+                Goals & Focus Targets
+              </h2>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 font-semibold">
+                Establish higher level daily intentions and track commitments.
+              </p>
+            </div>
+
+            <!-- Stats Box -->
+            <div id="goals-summary-box"
+              class="hidden flex items-center gap-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 md:w-80 justify-between shadow-xs">
+              <div>
+                <p
+                  class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider font-mono">
+                  Overall Focus Stats</p>
+                <p id="goals-stat-text" class="text-sm font-extrabold text-slate-800 dark:text-slate-100 mt-1">0 / 0
+                  completed</p>
+                <div class="w-48 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mt-2">
+                  <div id="goals-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                    style="width: 0%;"></div>
+                </div>
+              </div>
+              <div
+                class="bg-slate-100 dark:bg-slate-900 p-2 rounded-lg text-emerald-600 dark:text-emerald-400 shadow-xs animate-pulse">
+                <i id="goals-trophy-icon" data-lucide="star" class="w-5 h-5"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Insert Goal Form -->
+          <form onsubmit="addGoal(event)"
+            class="flex flex-col sm:flex-row gap-3 mb-6 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+            <div class="flex-1 min-w-0">
+              <input type="text" id="new-goal-input" required placeholder="Goal statement: read, work, workout..."
+                class="w-full text-xs p-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 font-sans font-semibold">
+            </div>
+            <div
+              class="w-full sm:w-44 flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-lg">
+              <i data-lucide="calendar" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <input type="date" id="new-goal-date" required
+                class="w-full text-xs bg-transparent focus:outline-none dark:text-slate-100 cursor-pointer font-bold">
+            </div>
+            <button type="submit"
+              class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs px-5 py-2.5 rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 transition cursor-pointer shadow-sm">
+              Add Goal
+            </button>
+          </form>
+
+          <!-- Filters toggles -->
+          <div class="flex gap-2 mb-4 border-b border-slate-200 dark:border-slate-800 pb-3 font-sans">
+            <button onclick="setGoalFilter('all')" id="goal-filter-all"
+              class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm cursor-pointer select-none">All</button>
+            <button onclick="setGoalFilter('active')" id="goal-filter-active"
+              class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer select-none">Active</button>
+            <button onclick="setGoalFilter('completed')" id="goal-filter-completed"
+              class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer select-none">Completed</button>
+          </div>
+
+          <!-- Goal List container -->
+          <div id="goals-list-container" class="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
+            <!-- JS populated -->
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- 4. Thoughts View -->
+      <div id="content-thoughts" class="hidden max-w-5xl mx-auto space-y-4">
+
+        <!-- Header Info Card -->
+        <div class="glass-card rounded-2xl p-5 flex items-center justify-between shadow-sm">
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-display">Thought
+              Stream Logger</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-semibold">Rapid reflections, instant
+              bookmarks, ideas, and notes.</p>
+          </div>
+          <div class="bg-slate-100 dark:bg-slate-800 p-2.5 rounded-xl text-slate-700 dark:text-slate-300 shadow-xs">
+            <i data-lucide="book-open" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <!-- Main Card Section -->
+        <div
+          class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 mb-6">
+
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 font-sans">
+            <div>
+              <h2
+                class="text-base font-extrabold text-slate-900 dark:text-slate-50 flex items-center gap-2 font-display">
+                <i data-lucide="book-open" class="w-4 h-4 text-slate-500 dark:text-slate-400"></i>
+                Random Thoughts Logger
+              </h2>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 font-semibold">
+                Jot down rapid reflections, bookmarks, ideas, or stream of consciousness logs.
+              </p>
+            </div>
+
+            <!-- Search -->
+            <div class="relative max-w-xs w-full sm:w-64 font-sans">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input type="text" id="thought-search-input" oninput="searchThoughts(this.value)"
+                placeholder="Search thoughts..."
+                class="w-full text-xs pl-9 pr-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 font-semibold transition-all">
+            </div>
+          </div>
+
+          <!-- Thought Creator Textarea Form -->
+          <form onsubmit="addThought(event)"
+            class="mb-6 font-sans bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+            <textarea id="new-thought-input" rows="3" required
+              placeholder="What's on your mind right now? Capture ideas instantly..."
+              class="w-full text-xs p-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 resize-none leading-relaxed transition-all font-semibold"></textarea>
+
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mt-3">
+              <!-- Category Selector Badge Button group -->
+              <div class="flex gap-2 w-full sm:w-auto">
+                <label
+                  class="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono self-center mr-1">Category:</label>
+                <select id="new-thought-category"
+                  class="text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-2 py-1 focus:outline-none dark:text-slate-200 font-bold cursor-pointer font-sans">
+                  <option value="note">📌 Note</option>
+                  <option value="idea" selected>💡 Idea</option>
+                  <option value="reflection">🧠 Reflection</option>
+                  <option value="learning">📚 Learning</option>
+                </select>
+              </div>
+
+              <button type="submit"
+                class="w-full sm:w-auto bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs py-2 px-4 rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 transition cursor-pointer shadow-sm">
+                Log Thought
+              </button>
+            </div>
+          </form>
+
+          <!-- Thoughts list Container -->
+          <div id="thoughts-list-container" class="space-y-3.5 max-h-[440px] overflow-y-auto pr-1 font-sans">
+            <!-- JS populated -->
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer copyright -->
+  <footer
+    class="py-8 text-center text-[10px] text-slate-400 dark:text-slate-500 transition-colors relative z-10 font-medium">
+    <p>&copy; <span id="current-year">2026</span> Daily Forge Planner. All Rights Reserved.</p>
+    <p class="mt-1">Built as a standalone lightweight website with zero dependencies, local-first execution, and native
+      LocalStorage backups.</p>
+  </footer>
+
+  <!-- Custom Confirm Modal -->
+  <div id="confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <!-- backdrop -->
+    <div class="absolute inset-0 bg-slate-950/40 modal-overlay" onclick="closeConfirmModal(false)"></div>
+    <!-- content -->
+    <div
+      class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 max-w-md w-full shadow-lg relative z-10 modal-content">
+      <div class="flex items-start gap-4 font-sans">
+        <div
+          class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0 shadow-xs">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 id="confirm-modal-title" class="text-sm font-bold text-slate-900 dark:text-white font-display">Are you
+            sure?</h3>
+          <p id="confirm-modal-message"
+            class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed font-semibold">This action cannot
+            be undone.</p>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button id="confirm-modal-cancel" onclick="closeConfirmModal(false)"
+          class="text-xs font-bold text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 px-4 py-2 rounded-lg transition cursor-pointer select-none">
+          Cancel
+        </button>
+        <button id="confirm-modal-submit" onclick="closeConfirmModal(true)"
+          class="text-xs font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 rounded-lg transition cursor-pointer shadow-sm select-none">
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Floating Toast Container -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+    <!-- Toasts are dynamically added here -->
+  </div>
+
+  <!-- Vanilla Script Section containing all state and app functionality -->
+  <script src="app.js"></script>
+</body>
+
+</html>
