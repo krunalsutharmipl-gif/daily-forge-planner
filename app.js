@@ -84,8 +84,11 @@ function pushNotificationLog(title, message) {
 // ----------------------------------------------------
 function updateClock() {
   const now = new Date();
-  const clockStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  document.getElementById('clock-display').textContent = clockStr;
+  const clockEl = document.getElementById('clock-display');
+  if (clockEl) {
+    const clockStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    clockEl.textContent = clockStr;
+  }
 
   // Greeting
   const hours = now.getHours();
