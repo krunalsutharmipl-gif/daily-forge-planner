@@ -612,6 +612,15 @@
 
           <!-- Right Column: Sidebar -->
           <div class="lg:col-span-4 space-y-4 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden">
+            <!-- Mobile Toggle Button for Pending Tasks -->
+            <button id="mobile-pending-toggle" onclick="toggleMobilePendingTasks()" class="w-full lg:hidden py-2.5 px-4 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 font-bold text-xs rounded-xl border border-amber-500/15 flex items-center justify-between transition cursor-pointer select-none hidden mb-2">
+              <span class="flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                <span id="mobile-pending-toggle-text">Show Pending Past Tasks (0)</span>
+              </span>
+              <i id="mobile-pending-toggle-icon" data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200"></i>
+            </button>
+
             <!-- Pending Days Sidebar Card -->
             <div id="pending-days-sidebar" class="glass-card rounded-2xl p-4 sm:p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 border-l-4 border-l-amber-500 hidden h-auto max-h-[320px] lg:max-h-full flex flex-col overflow-hidden">
               <h3 class="text-sm font-extrabold text-slate-900 dark:text-slate-100 font-display flex items-center gap-2 shrink-0">

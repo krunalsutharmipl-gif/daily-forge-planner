@@ -103,6 +103,7 @@ let activeGoalFilter = 'all';
 let thoughtSearchQuery = '';
 let editingThoughtId = null;
 let openSidebarDates = new Set();
+let showPendingMobile = false;
 
 // Set default theme state
 const savedTheme = safeStorage.getItem('localStorage', 'planner_theme') || 'light';
@@ -718,9 +719,31 @@ function renderTasks() {
   const listContainer = document.getElementById('pending-days-list');
   const boardCol = document.getElementById('tasks-board-column');
   
+  const mobileToggleBtn = document.getElementById('mobile-pending-toggle');
   if (sidebarContainer && listContainer) {
     if (uniquePendingDates.length > 0) {
-      sidebarContainer.classList.remove('hidden');
+      // Toggle button setup for mobile view
+      if (mobileToggleBtn) {
+        mobileToggleBtn.classList.remove('hidden');
+        const count = uniquePendingDates.length;
+        document.getElementById('mobile-pending-toggle-text').textContent = showPendingMobile 
+          ? `Hide Pending Past Tasks (${count})` 
+          : `Show Pending Past Tasks (${count})`;
+        
+        const toggleIcon = document.getElementById('mobile-pending-toggle-icon');
+        if (toggleIcon) {
+          toggleIcon.style.transform = showPendingMobile ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+      }
+
+      // Sidebar visibility is flex on desktop, but toggled on mobile based on showPendingMobile
+      const baseSidebarClass = "glass-card rounded-2xl p-4 sm:p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 border-l-4 border-l-amber-500 h-auto max-h-[320px] lg:max-h-full flex flex-col overflow-hidden";
+      if (showPendingMobile) {
+        sidebarContainer.className = `${baseSidebarClass} flex`;
+      } else {
+        sidebarContainer.className = `${baseSidebarClass} hidden lg:flex`;
+      }
+
       if (boardCol) {
         boardCol.className = "lg:col-span-8 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10";
       }
@@ -789,7 +812,10 @@ function renderTasks() {
         `;
       }).join('');
     } else {
-      sidebarContainer.classList.add('hidden');
+      if (mobileToggleBtn) {
+        mobileToggleBtn.classList.add('hidden');
+      }
+      sidebarContainer.className = "hidden";
       if (boardCol) {
         boardCol.className = "lg:col-span-12 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10";
       }
@@ -1045,6 +1071,11 @@ function toggleSidebarAccordion(dateStr) {
   } else {
     openSidebarDates.add(dateStr);
   }
+  renderAll();
+}
+
+function toggleMobilePendingTasks() {
+  showPendingMobile = !showPendingMobile;
   renderAll();
 }
 
