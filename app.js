@@ -1100,8 +1100,72 @@ function rescheduleTask(taskId) {
   saveState();
 }
 
+let activeSheetTaskId = null;
+
+function openTaskActionsSheet(taskId) {
+  activeSheetTaskId = taskId;
+  const task = tasks.find(t => t.id === taskId);
+  if (!task) return;
+  
+  const sheet = document.getElementById('task-actions-sheet');
+  const titleEl = document.getElementById('sheet-task-title');
+  if (sheet && titleEl) {
+    titleEl.textContent = task.title;
+    sheet.classList.remove('hidden');
+    
+    // Reset layout transition state
+    const content = sheet.querySelector('.animate-slideUp');
+    if (content) {
+      content.style.transform = 'translateY(100%)';
+      setTimeout(() => {
+        content.style.transform = 'translateY(0)';
+      }, 10);
+    }
+    
+    safeCreateIcons();
+  }
+}
+
+function closeTaskActionsSheet() {
+  const sheet = document.getElementById('task-actions-sheet');
+  if (sheet) {
+    const content = sheet.querySelector('.animate-slideUp');
+    if (content) {
+      content.style.transform = 'translateY(100%)';
+    }
+    setTimeout(() => {
+      sheet.classList.add('hidden');
+      activeSheetTaskId = null;
+    }, 200);
+  }
+}
+
+function executeSheetAction(action) {
+  const taskId = activeSheetTaskId;
+  closeTaskActionsSheet();
+  if (!taskId) return;
+  
+  // Delay action implementation to let slide-down animation close cleanly
+  setTimeout(() => {
+    if (action === 'add-subtask') {
+      triggerAddSubtask(taskId);
+    } else if (action === 'change-date') {
+      triggerChangeTaskDate(taskId);
+    } else if (action === 'delete') {
+      deleteTask(taskId);
+    }
+  }, 250);
+}
+
 function toggleTaskMenu(taskId, event) {
   if (event) event.stopPropagation();
+  
+  // Use globally placed bottom action sheet for mobile viewport sizes
+  const isMobile = window.innerWidth < 1024;
+  if (isMobile) {
+    openTaskActionsSheet(taskId);
+    return;
+  }
   
   // Hide all other menus first
   document.querySelectorAll('[id^="task-menu-"]').forEach(menu => {

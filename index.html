@@ -854,6 +854,45 @@
     </div>
   </div>
 
+  <!-- Mobile Task Actions Bottom Sheet -->
+  <div id="task-actions-sheet" class="fixed inset-0 z-50 flex items-end justify-center p-0 hidden">
+    <!-- backdrop -->
+    <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity duration-300" onclick="closeTaskActionsSheet()"></div>
+    <!-- sheet content -->
+    <div class="bg-white dark:bg-[#0f0b2c] border-t border-slate-200 dark:border-slate-800/80 rounded-t-3xl w-full max-w-md p-6 pb-8 shadow-2xl relative z-10 transition-transform duration-300 translate-y-full transform font-sans flex flex-col gap-4 animate-slideUp">
+      <!-- Drag handle -->
+      <div class="w-12 h-1 bg-slate-250 dark:bg-slate-800 rounded-full mx-auto mb-2"></div>
+      
+      <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0">
+          <i data-lucide="list-todo" class="w-4.5 h-4.5"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">Task Actions</p>
+          <p id="sheet-task-title" class="text-xs font-bold text-slate-800 dark:text-slate-250 truncate">Task Title</p>
+        </div>
+      </div>
+      
+      <!-- Actions List -->
+      <div class="flex flex-col gap-2">
+        <button onclick="executeSheetAction('add-subtask')" class="w-full py-3 px-4 text-left text-xs font-bold text-slate-800 dark:text-slate-250 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800/60 flex items-center gap-3 transition cursor-pointer select-none">
+          <i data-lucide="plus-circle" class="w-4 h-4 text-slate-500"></i> Add Subtask
+        </button>
+        <button onclick="executeSheetAction('change-date')" class="w-full py-3 px-4 text-left text-xs font-bold text-slate-800 dark:text-slate-250 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800/60 flex items-center gap-3 transition cursor-pointer select-none">
+          <i data-lucide="calendar" class="w-4 h-4 text-slate-500"></i> Change Date
+        </button>
+        <div class="h-px bg-slate-100 dark:bg-slate-800/80 my-1"></div>
+        <button onclick="executeSheetAction('delete')" class="w-full py-3 px-4 text-left text-xs font-bold text-rose-600 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 rounded-xl border border-rose-100 dark:border-rose-950/30 flex items-center gap-3 transition cursor-pointer select-none">
+          <i data-lucide="trash-2" class="w-4 h-4"></i> Delete Task
+        </button>
+      </div>
+
+      <button onclick="closeTaskActionsSheet()" class="w-full py-3 text-center text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition cursor-pointer mt-2">
+        Cancel
+      </button>
+    </div>
+  </div>
+
   <!-- Mobile Bottom Navigation Bar -->
   <div class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#070514]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800/80 md:hidden px-2 py-1.5 flex items-center justify-around shadow-lg">
     <button id="mobile-tab-dashboard" onclick="switchTab('dashboard')" class="flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all duration-205 cursor-pointer text-violet-600 dark:text-violet-400 font-bold">
