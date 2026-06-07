@@ -1,4 +1,64 @@
 // ----------------------------------------------------
+// SAFE STORAGE & SCRIPT RESILIENCE UTILITIES
+// ----------------------------------------------------
+// Global Mobile Error Diagnostics & Visual Logger
+window.addEventListener('error', function(event) {
+  console.error("Global Error Caught:", event.error);
+  if (typeof showToast === 'function') {
+    showToast("⚠️ Runtime Error", event.message || "An unexpected error occurred on this device.", "error");
+  }
+});
+
+window.addEventListener('unhandledrejection', function(event) {
+  console.error("Global Unhandled Promise Rejection:", event.reason);
+  if (typeof showToast === 'function') {
+    showToast("⚠️ Connection/Auth Error", (event.reason && event.reason.message) || "Cloud authentication or network request failed.", "error");
+  }
+});
+
+// Safe storage helper with in-memory fallback for private modes / security blocks
+const _storageFallback = {};
+const safeStorage = {
+  getItem(type, key) {
+    try {
+      return window[type].getItem(key);
+    } catch (e) {
+      console.warn(`[SafeStorage] Failed to read ${key} from ${type}:`, e);
+      return _storageFallback[`${type}_${key}`] || null;
+    }
+  },
+  setItem(type, key, value) {
+    try {
+      window[type].setItem(key, value);
+    } catch (e) {
+      console.warn(`[SafeStorage] Failed to write ${key} to ${type}:`, e);
+      _storageFallback[`${type}_${key}`] = String(value);
+    }
+  },
+  removeItem(type, key) {
+    try {
+      window[type].removeItem(key);
+    } catch (e) {
+      console.warn(`[SafeStorage] Failed to remove ${key} from ${type}:`, e);
+      delete _storageFallback[`${type}_${key}`];
+    }
+  }
+};
+
+// Safe Lucide icon creation wrapper
+function safeCreateIcons(options) {
+  if (typeof lucide !== 'undefined' && lucide.createIcons) {
+    try {
+      lucide.createIcons(options);
+    } catch (e) {
+      console.warn("Failed to create icons:", e);
+    }
+  } else {
+    console.warn("Lucide is not loaded yet.");
+  }
+}
+
+// ----------------------------------------------------
 // CONSTANTS & STATE HOOKS
 // ----------------------------------------------------
 let currentTab = 'dashboard';
@@ -19,7 +79,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 // Session status hooks
-let currentUser = localStorage.getItem('planner_logged_in_user') || sessionStorage.getItem('planner_logged_in_user') || null;
+let currentUser = safeStorage.getItem('localStorage', 'planner_logged_in_user') || safeStorage.getItem('sessionStorage', 'planner_logged_in_user') || null;
 
 // Core state (lazy loaded)
 let tasks = [];
@@ -45,7 +105,7 @@ let editingThoughtId = null;
 let openSidebarDates = new Set();
 
 // Set default theme state
-const savedTheme = localStorage.getItem('planner_theme') || 'light';
+const savedTheme = safeStorage.getItem('localStorage', 'planner_theme') || 'light';
 if (savedTheme === 'dark') {
   document.documentElement.classList.add('dark');
 }
@@ -88,7 +148,7 @@ window.addEventListener('DOMContentLoaded', () => {
     updateSyncStatus('offline');
   }
 
-  lucide.createIcons();
+  safeCreateIcons();
 });
 
 function renderAll() {
@@ -98,18 +158,18 @@ function renderAll() {
   renderThoughts();
   renderNotifsList();
   renderProfile();
-  lucide.createIcons();
+  safeCreateIcons();
 }
 
 // Save state helper
 function saveState() {
   if (currentUser) {
-    localStorage.setItem(`planner_${currentUser}_tasks`, JSON.stringify(tasks));
-    localStorage.setItem(`planner_${currentUser}_goals`, JSON.stringify(goals));
-    localStorage.setItem(`planner_${currentUser}_thoughts`, JSON.stringify(thoughts));
-    localStorage.setItem(`planner_${currentUser}_notifs`, JSON.stringify(notifs));
-    localStorage.setItem(`planner_${currentUser}_profile_name`, profileName);
-    localStorage.setItem(`planner_${currentUser}_profile_bio`, profileBio);
+    safeStorage.setItem('localStorage', `planner_${currentUser}_tasks`, JSON.stringify(tasks));
+    safeStorage.setItem('localStorage', `planner_${currentUser}_goals`, JSON.stringify(goals));
+    safeStorage.setItem('localStorage', `planner_${currentUser}_thoughts`, JSON.stringify(thoughts));
+    safeStorage.setItem('localStorage', `planner_${currentUser}_notifs`, JSON.stringify(notifs));
+    safeStorage.setItem('localStorage', `planner_${currentUser}_profile_name`, profileName);
+    safeStorage.setItem('localStorage', `planner_${currentUser}_profile_bio`, profileBio);
     syncWithFirebase();
   }
   renderAll();
@@ -148,7 +208,7 @@ function updateClock() {
 
 function toggleTheme() {
   const isDark = document.documentElement.classList.toggle('dark');
-  localStorage.setItem('planner_theme', isDark ? 'dark' : 'light');
+  safeStorage.setItem('localStorage', 'planner_theme', isDark ? 'dark' : 'light');
   showToast(
     isDark ? "🌙 Dark Mode Activated" : "☀️ Light Mode Activated",
     isDark ? "Contrast tailored for low-light focus." : "Vibrant daytime interface active.",
@@ -395,7 +455,7 @@ function showToast(title, message, type = 'info') {
   container.appendChild(toastElement);
   
   // Render Lucide SVG icons in the toast
-  lucide.createIcons({
+  safeCreateIcons({
     attrs: {
       class: 'w-4 h-4'
     },
@@ -438,7 +498,7 @@ function confirmCustom(title, message) {
     modal.classList.remove('hidden');
     
     // Create icons in modal
-    lucide.createIcons();
+    safeCreateIcons();
     
     currentConfirmPromiseResolver = resolve;
   });
@@ -1390,15 +1450,42 @@ function initUserSession(username, firstName, lastName) {
   if (firstName && lastName) {
     profileName = `${firstName} ${lastName}`;
   } else {
-    profileName = localStorage.getItem(`planner_${currentUser}_profile_name`) || username;
+    profileName = safeStorage.getItem('localStorage', `planner_${currentUser}_profile_name`) || username;
   }
-  profileBio = localStorage.getItem(`planner_${currentUser}_profile_bio`) || 'Crafting daily productivity';
+  profileBio = safeStorage.getItem('localStorage', `planner_${currentUser}_profile_bio`) || 'Crafting daily productivity';
   
-  // Load local cache fallback
-  tasks = JSON.parse(localStorage.getItem(`planner_${currentUser}_tasks`)) || [];
-  goals = JSON.parse(localStorage.getItem(`planner_${currentUser}_goals`)) || [];
-  thoughts = JSON.parse(localStorage.getItem(`planner_${currentUser}_thoughts`)) || [];
-  notifs = JSON.parse(localStorage.getItem(`planner_${currentUser}_notifs`)) || [];
+  // Load local cache fallback safely
+  try {
+    const cachedTasks = safeStorage.getItem('localStorage', `planner_${currentUser}_tasks`);
+    tasks = cachedTasks ? (JSON.parse(cachedTasks) || []) : [];
+  } catch (e) {
+    console.error("Failed to parse cached tasks:", e);
+    tasks = [];
+  }
+  
+  try {
+    const cachedGoals = safeStorage.getItem('localStorage', `planner_${currentUser}_goals`);
+    goals = cachedGoals ? (JSON.parse(cachedGoals) || []) : [];
+  } catch (e) {
+    console.error("Failed to parse cached goals:", e);
+    goals = [];
+  }
+  
+  try {
+    const cachedThoughts = safeStorage.getItem('localStorage', `planner_${currentUser}_thoughts`);
+    thoughts = cachedThoughts ? (JSON.parse(cachedThoughts) || []) : [];
+  } catch (e) {
+    console.error("Failed to parse cached thoughts:", e);
+    thoughts = [];
+  }
+  
+  try {
+    const cachedNotifs = safeStorage.getItem('localStorage', `planner_${currentUser}_notifs`);
+    notifs = cachedNotifs ? (JSON.parse(cachedNotifs) || []) : [];
+  } catch (e) {
+    console.error("Failed to parse cached notifications:", e);
+    notifs = [];
+  }
 
   // Hide auth screen overlay
   const overlay = document.getElementById('auth-overlay');
@@ -1478,7 +1565,7 @@ function submitSignUp(e) {
         showToast("🎉 Sign Up Complete", `Welcome, ${firstName}! Registration successful.`, "success");
         
         // Auto-login and persist session
-        localStorage.setItem('planner_logged_in_user', usernameLower);
+        safeStorage.setItem('localStorage', 'planner_logged_in_user', usernameLower);
         initUserSession(usernameLower, firstName, lastName);
         
         // Sync initial blank space to DB
@@ -1496,9 +1583,7 @@ function submitSignUp(e) {
 
 // Custom handler for Lucide re-creation inside auth views
 function reCreateAuthIcons() {
-  if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
-  }
+  safeCreateIcons();
 }
 
 function submitLogin(e) {
@@ -1527,9 +1612,9 @@ function submitLogin(e) {
       showToast("🔓 Access Granted", `Welcome back, ${userData.firstName}!`, "success");
       
       if (remember) {
-        localStorage.setItem('planner_logged_in_user', usernameLower);
+        safeStorage.setItem('localStorage', 'planner_logged_in_user', usernameLower);
       } else {
-        sessionStorage.setItem('planner_logged_in_user', usernameLower);
+        safeStorage.setItem('sessionStorage', 'planner_logged_in_user', usernameLower);
       }
       
       initUserSession(usernameLower, userData.firstName, userData.lastName);
@@ -1543,8 +1628,8 @@ function submitLogin(e) {
 }
 
 function logoutUser() {
-  localStorage.removeItem('planner_logged_in_user');
-  sessionStorage.removeItem('planner_logged_in_user');
+  safeStorage.removeItem('localStorage', 'planner_logged_in_user');
+  safeStorage.removeItem('sessionStorage', 'planner_logged_in_user');
   showToast("🔒 Securely Logged Out", "You have been signed out.", "info");
   
   setTimeout(() => {
@@ -1612,12 +1697,12 @@ function loadFromFirebase() {
         profileName = data.profileName || profileName;
         profileBio = data.profileBio || profileBio;
         
-        localStorage.setItem(`planner_${currentUser}_tasks`, JSON.stringify(tasks));
-        localStorage.setItem(`planner_${currentUser}_goals`, JSON.stringify(goals));
-        localStorage.setItem(`planner_${currentUser}_thoughts`, JSON.stringify(thoughts));
-        localStorage.setItem(`planner_${currentUser}_notifs`, JSON.stringify(notifs));
-        localStorage.setItem(`planner_${currentUser}_profile_name`, profileName);
-        localStorage.setItem(`planner_${currentUser}_profile_bio`, profileBio);
+        safeStorage.setItem('localStorage', `planner_${currentUser}_tasks`, JSON.stringify(tasks));
+        safeStorage.setItem('localStorage', `planner_${currentUser}_goals`, JSON.stringify(goals));
+        safeStorage.setItem('localStorage', `planner_${currentUser}_thoughts`, JSON.stringify(thoughts));
+        safeStorage.setItem('localStorage', `planner_${currentUser}_notifs`, JSON.stringify(notifs));
+        safeStorage.setItem('localStorage', `planner_${currentUser}_profile_name`, profileName);
+        safeStorage.setItem('localStorage', `planner_${currentUser}_profile_bio`, profileBio);
         
         renderAll();
       }
