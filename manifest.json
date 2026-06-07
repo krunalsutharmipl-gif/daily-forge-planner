@@ -1,0 +1,21 @@
+{
+  "name": "MindLog Planner",
+  "short_name": "MindLog",
+  "description": "Premium, local-first interactive planner for daily schedules, targets, and thoughts.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#070514",
+  "theme_color": "#070514",
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -34,6 +34,17 @@
 
   <!-- Custom stylesheet link -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- Favicon and PWA Home Screen Icons -->
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/logo.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/logo.png">
+  <link rel="shortcut icon" href="assets/logo.png" type="image/x-icon">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="MindLog">
+  <meta name="theme-color" content="#070514">
+  <link rel="manifest" href="manifest.json">
 </head>
 
 <body
@@ -204,7 +215,7 @@
     <div id="tab-content" class="transition-all duration-205 flex-1 overflow-hidden flex flex-col w-full min-h-0">
 
       <!-- 1. Workspace (Dashboard) View -->
-      <div id="content-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-1 overflow-y-auto w-full pr-1">
+      <div id="content-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-1 overflow-y-auto w-full pr-1 pb-24 lg:pb-0">
 
         <!-- Welcome Banner -->
         <div
@@ -527,9 +538,9 @@
         </div>
 
         <!-- Main Layout Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:items-stretch items-start w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:items-stretch items-start w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0 pb-24 lg:pb-0">
           <!-- Left Column: Tasks Board -->
-          <div id="tasks-board-column" class="lg:col-span-8 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden min-h-0">
+          <div id="tasks-board-column" class="lg:col-span-8 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10">
 
             <!-- Date Navigation Bar -->
             <div
@@ -620,7 +631,7 @@
       </div>
 
       <!-- 3. Goals View -->
-      <div id="content-goals" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-y-auto lg:overflow-hidden w-full min-h-0">
+      <div id="content-goals" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-hidden w-full min-h-0">
 
         <!-- Header Info Card -->
         <div class="glass-card rounded-2xl p-5 flex items-center justify-between shadow-sm shrink-0">
@@ -635,84 +646,87 @@
           </div>
         </div>
 
-        <!-- Main Card Section -->
-        <div
-          class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-emerald-500 w-full h-auto lg:flex-1 flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0">
-
-          <!-- Overview stats row -->
+        <!-- Main Layout Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:items-stretch items-start w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0 pb-24 lg:pb-0">
+          <!-- Main Column: Goals Card -->
           <div
-            class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
-            <div>
-              <h2 class="text-base font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2 font-display">
-                <i data-lucide="target" class="w-4 h-4 text-emerald-500"></i>
-                Goals & Focus Targets
-              </h2>
-              <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 font-semibold">
-                Establish higher level daily intentions and track commitments.
-              </p>
-            </div>
+            class="lg:col-span-12 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-emerald-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10">
 
-            <!-- Stats Box -->
-            <div id="goals-summary-box"
-              class="hidden flex items-center gap-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 md:w-80 justify-between shadow-xs">
+            <!-- Overview stats row -->
+            <div
+              class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
               <div>
-                <p
-                  class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider font-mono">
-                  Overall Focus Stats</p>
-                <p id="goals-stat-text" class="text-sm font-extrabold text-slate-800 dark:text-slate-100 mt-1">0 / 0
-                  completed</p>
-                <div class="w-48 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mt-2">
-                  <div id="goals-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500"
-                    style="width: 0%;"></div>
+                <h2 class="text-base font-bold text-slate-900 dark:text-slate-55 flex items-center gap-2 font-display">
+                  <i data-lucide="target" class="w-4 h-4 text-emerald-500"></i>
+                  Goals & Focus Targets
+                </h2>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 font-semibold">
+                  Establish higher level daily intentions and track commitments.
+                </p>
+              </div>
+
+              <!-- Stats Box -->
+              <div id="goals-summary-box"
+                class="hidden flex items-center gap-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 md:w-80 justify-between shadow-xs">
+                <div>
+                  <p
+                    class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider font-mono">
+                    Overall Focus Stats</p>
+                  <p id="goals-stat-text" class="text-sm font-extrabold text-slate-800 dark:text-slate-100 mt-1">0 / 0
+                    completed</p>
+                  <div class="w-48 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mt-2">
+                    <div id="goals-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                      style="width: 0%;"></div>
+                  </div>
+                </div>
+                <div
+                  class="bg-slate-100 dark:bg-slate-900 p-2 rounded-lg text-emerald-600 dark:text-emerald-400 shadow-xs animate-pulse">
+                  <i id="goals-trophy-icon" data-lucide="star" class="w-5 h-5"></i>
                 </div>
               </div>
-              <div
-                class="bg-slate-100 dark:bg-slate-900 p-2 rounded-lg text-emerald-600 dark:text-emerald-400 shadow-xs animate-pulse">
-                <i id="goals-trophy-icon" data-lucide="star" class="w-5 h-5"></i>
+            </div>
+
+            <!-- Insert Goal Form -->
+            <form onsubmit="addGoal(event)"
+              class="flex flex-col sm:flex-row gap-3 mb-4 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0">
+              <div class="flex-1 min-w-0">
+                <input type="text" id="new-goal-input" required placeholder="Goal statement: read, work, workout..."
+                  class="w-full text-xs p-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 font-sans font-semibold">
               </div>
+              <div
+                class="w-full sm:w-44 flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-lg">
+                <i data-lucide="calendar" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                <input type="date" id="new-goal-date" required
+                  class="w-full text-xs bg-transparent focus:outline-none dark:text-slate-100 cursor-pointer font-bold">
+              </div>
+              <button type="submit"
+                class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs px-5 py-2.5 rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 transition cursor-pointer shadow-sm">
+                Add Goal
+              </button>
+            </form>
+
+            <!-- Filters toggles -->
+            <div class="flex gap-2 mb-3 border-b border-slate-200 dark:border-slate-800 pb-2.5 font-sans shrink-0">
+              <button onclick="setGoalFilter('all')" id="goal-filter-all"
+                class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm cursor-pointer select-none">All</button>
+              <button onclick="setGoalFilter('active')" id="goal-filter-active"
+                class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer select-none">Active</button>
+              <button onclick="setGoalFilter('completed')" id="goal-filter-completed"
+                class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer select-none">Completed</button>
             </div>
-          </div>
 
-          <!-- Insert Goal Form -->
-          <form onsubmit="addGoal(event)"
-            class="flex flex-col sm:flex-row gap-3 mb-4 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0">
-            <div class="flex-1 min-w-0">
-              <input type="text" id="new-goal-input" required placeholder="Goal statement: read, work, workout..."
-                class="w-full text-xs p-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 font-sans font-semibold">
+            <!-- Goal List container -->
+            <div id="goals-list-container" class="space-y-2 flex-1 overflow-y-auto pr-1 pb-4">
+              <!-- JS populated -->
             </div>
-            <div
-              class="w-full sm:w-44 flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-lg">
-              <i data-lucide="calendar" class="w-4 h-4 text-slate-400 shrink-0"></i>
-              <input type="date" id="new-goal-date" required
-                class="w-full text-xs bg-transparent focus:outline-none dark:text-slate-100 cursor-pointer font-bold">
-            </div>
-            <button type="submit"
-              class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs px-5 py-2.5 rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 transition cursor-pointer shadow-sm">
-              Add Goal
-            </button>
-          </form>
 
-          <!-- Filters toggles -->
-          <div class="flex gap-2 mb-3 border-b border-slate-200 dark:border-slate-800 pb-2.5 font-sans shrink-0">
-            <button onclick="setGoalFilter('all')" id="goal-filter-all"
-              class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm cursor-pointer select-none">All</button>
-            <button onclick="setGoalFilter('active')" id="goal-filter-active"
-              class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer select-none">Active</button>
-            <button onclick="setGoalFilter('completed')" id="goal-filter-completed"
-              class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer select-none">Completed</button>
           </div>
-
-          <!-- Goal List container -->
-          <div id="goals-list-container" class="space-y-2 flex-1 overflow-y-auto pr-1 pb-4">
-            <!-- JS populated -->
-          </div>
-
         </div>
 
       </div>
 
       <!-- 4. Thoughts View -->
-      <div id="content-thoughts" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-y-auto lg:overflow-hidden w-full min-h-0">
+      <div id="content-thoughts" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-hidden w-full min-h-0">
 
         <!-- Header Info Card -->
         <div class="glass-card rounded-2xl p-5 flex items-center justify-between shadow-sm shrink-0">
@@ -727,64 +741,67 @@
           </div>
         </div>
 
-        <!-- Main Card Section -->
-        <div
-          class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-violet-600 w-full h-auto lg:flex-1 flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0">
+        <!-- Main Layout Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:items-stretch items-start w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0 pb-24 lg:pb-0">
+          <!-- Main Column: Thoughts Card -->
+          <div
+            class="lg:col-span-12 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-violet-600 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10">
 
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 font-sans shrink-0">
-            <div>
-              <h2
-                class="text-base font-extrabold text-slate-900 dark:text-slate-50 flex items-center gap-2 font-display">
-                <i data-lucide="book-open" class="w-4 h-4 text-slate-500 dark:text-slate-400"></i>
-                Random Thoughts Logger
-              </h2>
-              <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 font-semibold">
-                Jot down rapid reflections, bookmarks, ideas, or stream of consciousness logs.
-              </p>
-            </div>
-
-            <!-- Search -->
-            <div class="relative max-w-xs w-full sm:w-64 font-sans">
-              <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-              <input type="text" id="thought-search-input" oninput="searchThoughts(this.value)"
-                placeholder="Search thoughts..."
-                class="w-full text-xs pl-9 pr-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 font-semibold transition-all">
-            </div>
-          </div>
-
-          <!-- Thought Creator Textarea Form -->
-          <form onsubmit="addThought(event)"
-            class="mb-4 font-sans bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0">
-            <textarea id="new-thought-input" rows="3" required
-              placeholder="What's on your mind right now? Capture ideas instantly..."
-              class="w-full text-xs p-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 resize-none leading-relaxed transition-all font-semibold"></textarea>
-
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mt-3">
-              <!-- Category Selector Badge Button group -->
-              <div class="flex gap-2 w-full sm:w-auto">
-                <label
-                  class="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono self-center mr-1">Category:</label>
-                <select id="new-thought-category"
-                  class="text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-2 py-1 focus:outline-none dark:text-slate-200 font-bold cursor-pointer font-sans">
-                  <option value="note">📌 Note</option>
-                  <option value="idea" selected>💡 Idea</option>
-                  <option value="reflection">🧠 Reflection</option>
-                  <option value="learning">📚 Learning</option>
-                </select>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 font-sans shrink-0">
+              <div>
+                <h2
+                  class="text-base font-extrabold text-slate-900 dark:text-slate-55 flex items-center gap-2 font-display">
+                  <i data-lucide="book-open" class="w-4 h-4 text-slate-500 dark:text-slate-400"></i>
+                  Random Thoughts Logger
+                </h2>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 font-semibold">
+                  Jot down rapid reflections, bookmarks, ideas, or stream of consciousness logs.
+                </p>
               </div>
 
-              <button type="submit"
-                class="w-full sm:w-auto bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs py-2 px-4 rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 transition cursor-pointer shadow-sm">
-                Log Thought
-              </button>
+              <!-- Search -->
+              <div class="relative max-w-xs w-full sm:w-64 font-sans">
+                <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="thought-search-input" oninput="searchThoughts(this.value)"
+                  placeholder="Search thoughts..."
+                  class="w-full text-xs pl-9 pr-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 font-semibold transition-all">
+              </div>
             </div>
-          </form>
 
-          <!-- Thoughts list Container -->
-          <div id="thoughts-list-container" class="space-y-2 flex-1 overflow-y-auto pr-1 pb-4 font-sans">
-            <!-- JS populated -->
+            <!-- Thought Creator Textarea Form -->
+            <form onsubmit="addThought(event)"
+              class="mb-4 font-sans bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0">
+              <textarea id="new-thought-input" rows="3" required
+                placeholder="What's on your mind right now? Capture ideas instantly..."
+                class="w-full text-xs p-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 resize-none leading-relaxed transition-all font-semibold"></textarea>
+
+              <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mt-3">
+                <!-- Category Selector Badge Button group -->
+                <div class="flex gap-2 w-full sm:w-auto">
+                  <label
+                    class="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono self-center mr-1">Category:</label>
+                  <select id="new-thought-category"
+                    class="text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-2 py-1 focus:outline-none dark:text-slate-200 font-bold cursor-pointer font-sans">
+                    <option value="note">📌 Note</option>
+                    <option value="idea" selected>💡 Idea</option>
+                    <option value="reflection">🧠 Reflection</option>
+                    <option value="learning">📚 Learning</option>
+                  </select>
+                </div>
+
+                <button type="submit"
+                  class="w-full sm:w-auto bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs py-2 px-4 rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 transition cursor-pointer shadow-sm">
+                  Log Thought
+                </button>
+              </div>
+            </form>
+
+            <!-- Thoughts list Container -->
+            <div id="thoughts-list-container" class="space-y-2 flex-1 overflow-y-auto pr-1 pb-4 font-sans">
+              <!-- JS populated -->
+            </div>
+
           </div>
-
         </div>
 
       </div>
