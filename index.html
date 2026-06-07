@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daily Forge Planner</title>
+  <title>MindLog Planner</title>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,6 +39,95 @@
 <body
   class="h-screen bg-slate-50 dark:bg-[#070514] text-slate-800 dark:text-slate-200 font-sans transition-colors duration-200 relative flex flex-col overflow-hidden pb-20 md:pb-0">
 
+  <!-- Premium Glassmorphism Auth Overlay (Login / Sign Up) -->
+  <div id="auth-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 dark:bg-black/80 backdrop-blur-lg transition-all duration-300">
+    <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative z-10 transition-all duration-300 transform scale-100 hover:border-slate-350 dark:hover:border-slate-700">
+      
+      <!-- Top Branding -->
+      <div class="flex flex-col items-center mb-6">
+        <div class="w-14 h-14 rounded-2xl overflow-hidden shadow-md mb-3 flex items-center justify-center bg-slate-900 dark:bg-white">
+          <img src="assets/logo.png" alt="MindLog Logo" class="w-full h-full object-cover">
+        </div>
+        <h2 class="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight font-display">MindLog Planner</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-semibold text-center">Crafting daily productivity, synced in the cloud.</p>
+      </div>
+
+      <!-- Tabs (Login / Sign Up) -->
+      <div class="flex bg-slate-100/80 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/85 rounded-full p-1 mb-6 shadow-inner">
+        <button id="auth-tab-login" onclick="toggleAuthTab('login')" class="flex-1 py-2 text-center text-xs font-extrabold tracking-wide rounded-full transition-all duration-200 cursor-pointer bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm">
+          Log In
+        </button>
+        <button id="auth-tab-signup" onclick="toggleAuthTab('signup')" class="flex-1 py-2 text-center text-xs font-extrabold tracking-wide rounded-full transition-all duration-200 cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
+          Sign Up
+        </button>
+      </div>
+
+      <!-- Login Panel -->
+      <form id="auth-login-form" onsubmit="submitLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-1.5">Username</label>
+          <div class="relative">
+            <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input type="text" id="login-username" required placeholder="Enter username..." class="w-full text-xs pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-slate-400 dark:focus:border-slate-650 dark:text-slate-100 font-sans font-semibold transition-all">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-1.5">Password</label>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input type="password" id="login-password" required placeholder="Enter password..." class="w-full text-xs pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-slate-400 dark:focus:border-slate-650 dark:text-slate-100 font-sans font-semibold transition-all">
+          </div>
+        </div>
+        <div class="flex items-center justify-between pt-1">
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input type="checkbox" id="login-remember" class="w-3.5 h-3.5 text-slate-900 border-slate-300 rounded focus:ring-0 cursor-pointer">
+            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-bold">Stay logged in</span>
+          </label>
+        </div>
+        <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-extrabold text-xs py-3 rounded-xl transition duration-200 cursor-pointer shadow-md mt-6 flex items-center justify-center gap-2">
+          <i data-lucide="log-in" class="w-4 h-4"></i> Log In
+        </button>
+      </form>
+
+      <!-- Sign Up Panel (Hidden by default) -->
+      <form id="auth-signup-form" onsubmit="submitSignUp(event)" class="space-y-4 hidden">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-1.5">First Name</label>
+            <div class="relative">
+              <input type="text" id="signup-firstname" required placeholder="John" class="w-full text-xs px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-slate-400 dark:focus:border-slate-650 dark:text-slate-100 font-sans font-semibold transition-all">
+            </div>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-1.5">Last Name</label>
+            <div class="relative">
+              <input type="text" id="signup-lastname" required placeholder="Doe" class="w-full text-xs px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-slate-400 dark:focus:border-slate-650 dark:text-slate-100 font-sans font-semibold transition-all">
+            </div>
+          </div>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-1.5">Username</label>
+          <div class="relative">
+            <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input type="text" id="signup-username" required placeholder="Create unique username..." class="w-full text-xs pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-slate-400 dark:focus:border-slate-650 dark:text-slate-100 font-sans font-semibold transition-all">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-1.5">Password</label>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input type="password" id="signup-password" required placeholder="Create password..." class="w-full text-xs pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-slate-400 dark:focus:border-slate-650 dark:text-slate-100 font-sans font-semibold transition-all">
+          </div>
+        </div>
+        <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-extrabold text-xs py-3 rounded-xl transition duration-200 cursor-pointer shadow-md mt-6 flex items-center justify-center gap-2">
+          <i data-lucide="user-plus" class="w-4 h-4"></i> Create Account
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+
   <!-- Premium Ambient Glassmorphism Backdrops - Inspired by visual mesh -->
   <div class="absolute inset-0 -z-30 overflow-hidden pointer-events-none">
     <!-- Blob 1: Violet/Pink -->
@@ -60,14 +149,13 @@
 
       <!-- Left: Logo -->
       <div class="flex items-center gap-3">
-        <div
-          class="w-8 h-8 bg-slate-900 dark:bg-white rounded-lg flex items-center justify-center text-white dark:text-slate-900 shadow-sm">
-          <span class="font-extrabold text-base font-display">F</span>
+        <div class="w-8 h-8 rounded-lg overflow-hidden shadow-sm flex items-center justify-center bg-slate-900 dark:bg-white shrink-0">
+          <img src="assets/logo.png" alt="MindLog Logo" class="w-full h-full object-cover">
         </div>
         <div>
           <h1
             class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight font-display flex items-baseline gap-1 leading-none">
-            Daily Forge
+            MindLog
             <span
               class="text-[8px] font-mono font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">Planner</span>
           </h1>
@@ -110,10 +198,10 @@
   </header>
 
   <!-- Main Container -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 overflow-hidden flex flex-col">
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 overflow-hidden flex flex-col min-h-0">
 
     <!-- Active Tab Containers -->
-    <div id="tab-content" class="transition-all duration-205 flex-1 overflow-hidden flex flex-col w-full">
+    <div id="tab-content" class="transition-all duration-205 flex-1 overflow-hidden flex flex-col w-full min-h-0">
 
       <!-- 1. Workspace (Dashboard) View -->
       <div id="content-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-1 overflow-y-auto w-full pr-1">
@@ -124,7 +212,7 @@
           <div>
             <h2 id="greeting-title"
               class="text-xl sm:text-2xl font-bold tracking-tight font-display text-slate-900 dark:text-white">
-              Good morning, Forgemaker!
+              Good morning, Mindlogger!
             </h2>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xl leading-relaxed font-medium">
               Track thoughts, checklist tasks with day-wise isolation, and log high-stakes commitments. Structured into a
@@ -150,8 +238,8 @@
                 class="w-12 h-12 rounded-full profile-avatar-gradient flex items-center justify-center shadow-sm shrink-0">
                 <div
                   class="w-full h-full rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center overflow-hidden">
-                  <span id="profile-avatar-initial"
-                    class="text-base font-extrabold text-slate-900 dark:text-white font-display">F</span>
+                   <span id="profile-avatar-initial"
+                    class="text-base font-extrabold text-slate-900 dark:text-white font-display">M</span>
                 </div>
               </div>
 
@@ -159,20 +247,28 @@
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-1.5">
                   <h3 id="profile-display-name"
-                    class="text-sm font-bold text-slate-900 dark:text-white truncate font-display">Forgemaker</h3>
+                    class="text-sm font-bold text-slate-900 dark:text-white truncate font-display">Mindlogger</h3>
                   <button onclick="startProfileEdit()"
                     class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
                     title="Edit Profile">
                     <i data-lucide="edit-2" class="w-3 h-3"></i>
                   </button>
+                  <button onclick="logoutUser()"
+                    class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
+                    title="Log Out">
+                    <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                  </button>
                 </div>
                 <p id="profile-display-bio"
                   class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5 font-medium">Crafting daily
                   productivity</p>
-                <div class="mt-1.5 flex">
+                <div class="mt-1.5 flex flex-wrap gap-1.5">
                   <span id="profile-rank-badge"
                     class="text-[9px] font-mono font-bold tracking-wide uppercase px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-xs">Focus
                     Apprentice</span>
+                  <span id="sync-status-badge" class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-500/15 flex items-center gap-1">
+                    <i data-lucide="cloud" class="w-2.5 h-2.5"></i> Connecting
+                  </span>
                 </div>
               </div>
             </div>
@@ -414,7 +510,7 @@
       </div>
 
       <!-- 2. Tasks View -->
-      <div id="content-tasks" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-hidden w-full">
+      <div id="content-tasks" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-hidden w-full min-h-0">
 
         <!-- Header Info Card -->
         <div class="glass-card rounded-2xl p-5 flex items-center justify-between shadow-sm shrink-0">
@@ -431,9 +527,9 @@
         </div>
 
         <!-- Main Layout Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch w-full flex-1 overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:items-stretch items-start w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0">
           <!-- Left Column: Tasks Board -->
-          <div id="tasks-board-column" class="lg:col-span-8 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden">
+          <div id="tasks-board-column" class="lg:col-span-8 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden min-h-0">
 
             <!-- Date Navigation Bar -->
             <div
@@ -504,9 +600,9 @@
           </div>
 
           <!-- Right Column: Sidebar -->
-          <div class="lg:col-span-4 space-y-4 w-full h-full flex flex-col overflow-hidden">
+          <div class="lg:col-span-4 space-y-4 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden">
             <!-- Pending Days Sidebar Card -->
-            <div id="pending-days-sidebar" class="glass-card rounded-2xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 border-l-4 border-l-amber-500 hidden max-h-full flex flex-col overflow-hidden">
+            <div id="pending-days-sidebar" class="glass-card rounded-2xl p-4 sm:p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 border-l-4 border-l-amber-500 hidden h-auto max-h-[320px] lg:max-h-full flex flex-col overflow-hidden">
               <h3 class="text-sm font-extrabold text-slate-900 dark:text-slate-100 font-display flex items-center gap-2 shrink-0">
                 <i data-lucide="alert-circle" class="w-4 h-4 text-amber-500"></i>
                 Pending Past Tasks
@@ -524,7 +620,7 @@
       </div>
 
       <!-- 3. Goals View -->
-      <div id="content-goals" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-hidden w-full">
+      <div id="content-goals" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-y-auto lg:overflow-hidden w-full min-h-0">
 
         <!-- Header Info Card -->
         <div class="glass-card rounded-2xl p-5 flex items-center justify-between shadow-sm shrink-0">
@@ -541,7 +637,7 @@
 
         <!-- Main Card Section -->
         <div
-          class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-emerald-500 flex-1 flex flex-col overflow-hidden w-full">
+          class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-emerald-500 w-full h-auto lg:flex-1 flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0">
 
           <!-- Overview stats row -->
           <div
@@ -616,7 +712,7 @@
       </div>
 
       <!-- 4. Thoughts View -->
-      <div id="content-thoughts" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-hidden w-full">
+      <div id="content-thoughts" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-y-auto lg:overflow-hidden w-full min-h-0">
 
         <!-- Header Info Card -->
         <div class="glass-card rounded-2xl p-5 flex items-center justify-between shadow-sm shrink-0">
@@ -633,7 +729,7 @@
 
         <!-- Main Card Section -->
         <div
-          class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 flex-1 flex flex-col overflow-hidden w-full">
+          class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-violet-600 w-full h-auto lg:flex-1 flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0">
 
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 font-sans shrink-0">
             <div>
@@ -756,6 +852,10 @@
   <div id="toast-container" class="fixed bottom-16 md:bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
     <!-- Toasts are dynamically added here -->
   </div>
+
+  <!-- Firebase App & Firestore Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
   <!-- Vanilla Script Section containing all state and app functionality -->
   <script src="app.js"></script>

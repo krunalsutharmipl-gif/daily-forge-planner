@@ -3,15 +3,31 @@
 // ----------------------------------------------------
 let currentTab = 'dashboard';
 
-// Core state loaded from LocalStorage
-let tasks = JSON.parse(localStorage.getItem('planner_local_tasks')) || [];
-let goals = JSON.parse(localStorage.getItem('planner_local_goals')) || [];
-let thoughts = JSON.parse(localStorage.getItem('planner_local_thoughts')) || [];
-let notifs = JSON.parse(localStorage.getItem('planner_notification_logs')) || [];
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBAlW7HUANkHvHq1ydpUX1lSe8rC3soOIU",
+  authDomain: "daily-forge-planner.firebaseapp.com",
+  projectId: "daily-forge-planner",
+  storageBucket: "daily-forge-planner.firebasestorage.app",
+  messagingSenderId: "823042016385",
+  appId: "1:823042016385:web:5539a66464975b3fdd7980",
+  measurementId: "G-MLV3FB5EXQ"
+};
 
-// Core profile state loaded from LocalStorage
-let profileName = localStorage.getItem('planner_profile_name') || 'Forgemaker';
-let profileBio = localStorage.getItem('planner_profile_bio') || 'Crafting daily productivity';
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Session status hooks
+let currentUser = localStorage.getItem('planner_logged_in_user') || sessionStorage.getItem('planner_logged_in_user') || null;
+
+// Core state (lazy loaded)
+let tasks = [];
+let goals = [];
+let thoughts = [];
+let notifs = [];
+let profileName = 'Mindlogger';
+let profileBio = 'Crafting daily productivity';
 
 // Helper to get local YYYY-MM-DD
 function toLocalISODate(d) {
@@ -64,9 +80,14 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Trigger state re-renders
-  renderProfile();
-  renderAll();
+  // Initialize Session / Auth Check
+  if (currentUser) {
+    initUserSession(currentUser);
+  } else {
+    document.getElementById('auth-overlay').classList.remove('hidden');
+    updateSyncStatus('offline');
+  }
+
   lucide.createIcons();
 });
 
@@ -82,10 +103,15 @@ function renderAll() {
 
 // Save state helper
 function saveState() {
-  localStorage.setItem('planner_local_tasks', JSON.stringify(tasks));
-  localStorage.setItem('planner_local_goals', JSON.stringify(goals));
-  localStorage.setItem('planner_local_thoughts', JSON.stringify(thoughts));
-  localStorage.setItem('planner_notification_logs', JSON.stringify(notifs));
+  if (currentUser) {
+    localStorage.setItem(`planner_${currentUser}_tasks`, JSON.stringify(tasks));
+    localStorage.setItem(`planner_${currentUser}_goals`, JSON.stringify(goals));
+    localStorage.setItem(`planner_${currentUser}_thoughts`, JSON.stringify(thoughts));
+    localStorage.setItem(`planner_${currentUser}_notifs`, JSON.stringify(notifs));
+    localStorage.setItem(`planner_${currentUser}_profile_name`, profileName);
+    localStorage.setItem(`planner_${currentUser}_profile_bio`, profileBio);
+    syncWithFirebase();
+  }
   renderAll();
 }
 
@@ -277,7 +303,7 @@ function renderProfile() {
   
   // Dynamic Focus Rank:
   let rank = "Focus Apprentice";
-  if (pct > 80) rank = "Grand Forgemaster";
+  if (pct > 80) rank = "Grand Mindlogger";
   else if (pct > 50) rank = "Focus Sentinel";
   else if (pct > 20) rank = "Skilled Artisan";
   
@@ -313,10 +339,8 @@ function saveProfile() {
   if (name) {
     profileName = name;
     profileBio = bio || 'Crafting daily productivity';
-    localStorage.setItem('planner_profile_name', profileName);
-    localStorage.setItem('planner_profile_bio', profileBio);
     document.getElementById('profile-edit-container').classList.add('hidden');
-    renderProfile();
+    saveState();
     showToast("👤 Profile Updated", "Your profile details have been saved.", "success");
   } else {
     showToast("⚠️ Validation Error", "Profile name cannot be blank.", "warning");
@@ -638,7 +662,7 @@ function renderTasks() {
     if (uniquePendingDates.length > 0) {
       sidebarContainer.classList.remove('hidden');
       if (boardCol) {
-        boardCol.className = "lg:col-span-8 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden";
+        boardCol.className = "lg:col-span-8 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0";
       }
       listContainer.innerHTML = uniquePendingDates.map(dateStr => {
         const tasksForDate = pendingPastTasks.filter(t => t.targetDate === dateStr);
@@ -707,7 +731,7 @@ function renderTasks() {
     } else {
       sidebarContainer.classList.add('hidden');
       if (boardCol) {
-        boardCol.className = "lg:col-span-12 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden";
+        boardCol.className = "lg:col-span-12 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0";
       }
       listContainer.innerHTML = '';
     }
@@ -881,6 +905,13 @@ function addTask(e) {
   showToast("📝 Task Registered", `Registered task: "${title}".`, "success");
   pushNotificationLog("📝 Task Registered", `Registered task: "${title}".`);
   saveState();
+
+  const container = document.getElementById('tasks-list-container');
+  if (container) {
+    setTimeout(() => {
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    }, 50);
+  }
 }
 
 function toggleTaskCompletion(taskId) {
@@ -1152,6 +1183,13 @@ function addGoal(e) {
   showToast("🎯 Target Added", `Established target: "${title}".`, "success");
   pushNotificationLog("🎯 Goal Established", `Set target: "${title}".`);
   saveState();
+
+  const container = document.getElementById('goals-list-container');
+  if (container) {
+    setTimeout(() => {
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    }, 50);
+  }
 }
 
 function toggleGoal(goalId) {
@@ -1295,6 +1333,13 @@ function addThought(e) {
   showToast("💭 Thought Logged", "Logged a reflection note to your timeline.", "success");
   pushNotificationLog("💭 Thought Logged", "Logged a reflection note to your timeline.");
   saveState();
+
+  const container = document.getElementById('thoughts-list-container');
+  if (container) {
+    setTimeout(() => {
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    }, 50);
+  }
 }
 
 function startThoughtEdit(thId) {
@@ -1335,3 +1380,247 @@ function deleteThought(thId) {
     }
   });
 }
+
+// ----------------------------------------------------
+// 5. CUSTOM USER AUTHENTICATION & SYNC CORE
+// ----------------------------------------------------
+function initUserSession(username, firstName, lastName) {
+  currentUser = username.toLowerCase();
+  
+  if (firstName && lastName) {
+    profileName = `${firstName} ${lastName}`;
+  } else {
+    profileName = localStorage.getItem(`planner_${currentUser}_profile_name`) || username;
+  }
+  profileBio = localStorage.getItem(`planner_${currentUser}_profile_bio`) || 'Crafting daily productivity';
+  
+  // Load local cache fallback
+  tasks = JSON.parse(localStorage.getItem(`planner_${currentUser}_tasks`)) || [];
+  goals = JSON.parse(localStorage.getItem(`planner_${currentUser}_goals`)) || [];
+  thoughts = JSON.parse(localStorage.getItem(`planner_${currentUser}_thoughts`)) || [];
+  notifs = JSON.parse(localStorage.getItem(`planner_${currentUser}_notifs`)) || [];
+
+  // Hide auth screen overlay
+  const overlay = document.getElementById('auth-overlay');
+  if (overlay) overlay.classList.add('hidden');
+  
+  // Update UI greetings
+  const greetingEl = document.getElementById('greeting-title');
+  if (greetingEl) {
+    const hours = new Date().getHours();
+    let greeting = 'Good morning';
+    if (hours >= 12 && hours < 17) greeting = 'Good afternoon';
+    else if (hours >= 17) greeting = 'Good evening';
+    greetingEl.textContent = `${greeting}, ${profileName}!`;
+  }
+  
+  updateSyncStatus('syncing');
+
+  // Load latest cloud data
+  loadFromFirebase().then(() => {
+    updateSyncStatus('synced');
+  }).catch((err) => {
+    console.error("Cloud data fetch failed:", err);
+    updateSyncStatus('offline');
+  });
+
+  renderAll();
+}
+
+function toggleAuthTab(tab) {
+  const loginForm = document.getElementById('auth-login-form');
+  const signupForm = document.getElementById('auth-signup-form');
+  const loginTabBtn = document.getElementById('auth-tab-login');
+  const signupTabBtn = document.getElementById('auth-tab-signup');
+  
+  if (tab === 'login') {
+    loginForm.classList.remove('hidden');
+    signupForm.classList.add('hidden');
+    loginTabBtn.className = "flex-1 py-2 text-center text-xs font-extrabold tracking-wide rounded-full transition-all duration-200 cursor-pointer bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm";
+    signupTabBtn.className = "flex-1 py-2 text-center text-xs font-extrabold tracking-wide rounded-full transition-all duration-200 cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200";
+  } else {
+    loginForm.classList.add('hidden');
+    signupForm.classList.remove('hidden');
+    signupTabBtn.className = "flex-1 py-2 text-center text-xs font-extrabold tracking-wide rounded-full transition-all duration-200 cursor-pointer bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm";
+    loginTabBtn.className = "flex-1 py-2 text-center text-xs font-extrabold tracking-wide rounded-full transition-all duration-200 cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200";
+  }
+}
+
+function submitSignUp(e) {
+  e.preventDefault();
+  const firstName = document.getElementById('signup-firstname').value.trim();
+  const lastName = document.getElementById('signup-lastname').value.trim();
+  const username = document.getElementById('signup-username').value.trim();
+  const password = document.getElementById('signup-password').value;
+  
+  if (!firstName || !lastName || !username || !password) {
+    showToast("⚠️ Validation Error", "All fields are required.", "warning");
+    return;
+  }
+  
+  const usernameLower = username.toLowerCase();
+  showToast("🔍 Verifying Account", "Validating username uniqueness...", "info");
+  
+  const userRef = db.collection('users').doc(usernameLower);
+  userRef.get().then(docSnapshot => {
+    if (docSnapshot.exists) {
+      showToast("❌ Username Taken", `"${username}" is already in use. Please select a different username.`, "error");
+    } else {
+      const userData = {
+        username: username,
+        password: password,
+        firstName: firstName,
+        lastName: lastName,
+        createdAt: new Date().toISOString()
+      };
+      
+      userRef.set(userData).then(() => {
+        showToast("🎉 Sign Up Complete", `Welcome, ${firstName}! Registration successful.`, "success");
+        
+        // Auto-login and persist session
+        localStorage.setItem('planner_logged_in_user', usernameLower);
+        initUserSession(usernameLower, firstName, lastName);
+        
+        // Sync initial blank space to DB
+        syncWithFirebase();
+      }).catch(err => {
+        showToast("❌ DB Registration Error", "Failed to write user document.", "error");
+        console.error(err);
+      });
+    }
+  }).catch(err => {
+    showToast("❌ Connection Failure", "Unable to connect to database.", "error");
+    console.error(err);
+  });
+}
+
+// Custom handler for Lucide re-creation inside auth views
+function reCreateAuthIcons() {
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+}
+
+function submitLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  const remember = document.getElementById('login-remember').checked;
+  
+  if (!username || !password) {
+    showToast("⚠️ Credentials Missing", "Please enter username and password.", "warning");
+    return;
+  }
+  
+  const usernameLower = username.toLowerCase();
+  showToast("🔑 Accessing Vault", "Checking user credentials...", "info");
+  
+  const userRef = db.collection('users').doc(usernameLower);
+  userRef.get().then(docSnapshot => {
+    if (!docSnapshot.exists) {
+      showToast("❌ Account Not Found", "No profile matches that username.", "error");
+      return;
+    }
+    
+    const userData = docSnapshot.data();
+    if (userData.password === password) {
+      showToast("🔓 Access Granted", `Welcome back, ${userData.firstName}!`, "success");
+      
+      if (remember) {
+        localStorage.setItem('planner_logged_in_user', usernameLower);
+      } else {
+        sessionStorage.setItem('planner_logged_in_user', usernameLower);
+      }
+      
+      initUserSession(usernameLower, userData.firstName, userData.lastName);
+    } else {
+      showToast("❌ Password Error", "The password you entered is incorrect.", "error");
+    }
+  }).catch(err => {
+    showToast("❌ Server Connection Error", "Unable to read auth data.", "error");
+    console.error(err);
+  });
+}
+
+function logoutUser() {
+  localStorage.removeItem('planner_logged_in_user');
+  sessionStorage.removeItem('planner_logged_in_user');
+  showToast("🔒 Securely Logged Out", "You have been signed out.", "info");
+  
+  setTimeout(() => {
+    window.location.reload();
+  }, 1000);
+}
+
+function updateSyncStatus(status) {
+  const badge = document.getElementById('sync-status-badge');
+  if (!badge) return;
+  
+  if (status === 'synced') {
+    badge.className = "text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/15 flex items-center gap-1";
+    badge.innerHTML = `<i data-lucide="cloud" class="w-2.5 h-2.5"></i> Synced`;
+  } else if (status === 'syncing') {
+    badge.className = "text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-500/15 flex items-center gap-1";
+    badge.innerHTML = `<i data-lucide="cloud-lightning" class="w-2.5 h-2.5 animate-pulse"></i> Syncing`;
+  } else if (status === 'offline') {
+    badge.className = "text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 border border-rose-500/15 flex items-center gap-1";
+    badge.innerHTML = `<i data-lucide="cloud-off" class="w-2.5 h-2.5"></i> Offline`;
+  } else {
+    badge.className = "text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-500/15 flex items-center gap-1";
+    badge.innerHTML = `<i data-lucide="cloud" class="w-2.5 h-2.5"></i> Connecting`;
+  }
+  reCreateAuthIcons();
+}
+
+function syncWithFirebase() {
+  if (!currentUser) return;
+  
+  updateSyncStatus('syncing');
+  
+  const plannerData = {
+    tasks,
+    goals,
+    thoughts,
+    notifs,
+    profileName,
+    profileBio,
+    updatedAt: new Date().toISOString()
+  };
+  
+  db.collection('users').doc(currentUser).collection('planner').doc('data').set(plannerData)
+    .then(() => {
+      updateSyncStatus('synced');
+    })
+    .catch(err => {
+      console.error("Firebase sync error:", err);
+      updateSyncStatus('offline');
+    });
+}
+
+function loadFromFirebase() {
+  if (!currentUser) return Promise.resolve();
+  
+  return db.collection('users').doc(currentUser).collection('planner').doc('data').get()
+    .then(docSnapshot => {
+      if (docSnapshot.exists) {
+        const data = docSnapshot.data();
+        
+        tasks = data.tasks || [];
+        goals = data.goals || [];
+        thoughts = data.thoughts || [];
+        notifs = data.notifs || [];
+        profileName = data.profileName || profileName;
+        profileBio = data.profileBio || profileBio;
+        
+        localStorage.setItem(`planner_${currentUser}_tasks`, JSON.stringify(tasks));
+        localStorage.setItem(`planner_${currentUser}_goals`, JSON.stringify(goals));
+        localStorage.setItem(`planner_${currentUser}_thoughts`, JSON.stringify(thoughts));
+        localStorage.setItem(`planner_${currentUser}_notifs`, JSON.stringify(notifs));
+        localStorage.setItem(`planner_${currentUser}_profile_name`, profileName);
+        localStorage.setItem(`planner_${currentUser}_profile_bio`, profileBio);
+        
+        renderAll();
+      }
+    });
+}
+
