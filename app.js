@@ -13,11 +13,20 @@ let notifs = JSON.parse(localStorage.getItem('planner_notification_logs')) || []
 let profileName = localStorage.getItem('planner_profile_name') || 'Forgemaker';
 let profileBio = localStorage.getItem('planner_profile_bio') || 'Crafting daily productivity';
 
+// Helper to get local YYYY-MM-DD
+function toLocalISODate(d) {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // Filters & Navigation Selectors
-let activeTaskDate = new Date().toISOString().split('T')[0];
+let activeTaskDate = toLocalISODate(new Date());
 let activeGoalFilter = 'all';
 let thoughtSearchQuery = '';
 let editingThoughtId = null;
+let openSidebarDates = new Set();
 
 // Set default theme state
 const savedTheme = localStorage.getItem('planner_theme') || 'light';
@@ -35,12 +44,25 @@ window.addEventListener('DOMContentLoaded', () => {
   // Set Default New Goal date to tomorrow
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  document.getElementById('new-goal-date').value = tomorrow.toISOString().split('T')[0];
-  document.getElementById('current-year').textContent = new Date().getFullYear();
+  document.getElementById('new-goal-date').value = toLocalISODate(tomorrow);
+  const currentYearEl = document.getElementById('current-year');
+  if (currentYearEl) {
+    currentYearEl.textContent = new Date().getFullYear();
+  }
 
   // Update Clock initially and launch loop
   updateClock();
   setInterval(updateClock, 1000);
+
+  // Close task dropdown menus when clicking outside
+  document.addEventListener('click', () => {
+    document.querySelectorAll('[id^="task-menu-"]').forEach(menu => {
+      menu.classList.add('hidden');
+    });
+    document.querySelectorAll('.task-card-wrapper').forEach(card => {
+      card.classList.remove('z-40', 'relative');
+    });
+  });
 
   // Trigger state re-renders
   renderProfile();
@@ -199,25 +221,25 @@ function calculateStreak() {
   try {
     const datesSet = new Set();
     tasks.forEach(t => { if (t.completed) datesSet.add(t.targetDate); });
-    thoughts.forEach(th => { datesSet.add(th.createdAt.split('T')[0]); });
+    thoughts.forEach(th => { datesSet.add(toLocalISODate(new Date(th.createdAt))); });
 
     const sortedDates = Array.from(datesSet).sort((a, b) => b.localeCompare(a));
     if (sortedDates.length === 0) return 0;
 
     let streak = 0;
     let checkDate = new Date();
-    const todayStr = checkDate.toISOString().split('T')[0];
+    const todayStr = toLocalISODate(checkDate);
     
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const yesterdayStr = toLocalISODate(yesterday);
 
     if (!datesSet.has(todayStr) && !datesSet.has(yesterdayStr)) {
       return 0;
     }
 
     for (let i = 0; i < sortedDates.length; i++) {
-      const expectedStr = checkDate.toISOString().split('T')[0];
+      const expectedStr = toLocalISODate(checkDate);
       if (datesSet.has(expectedStr)) {
         streak++;
         checkDate.setDate(checkDate.getDate() - 1);
@@ -540,11 +562,30 @@ function simulateProductivityAlert() {
 // ----------------------------------------------------
 // 2. DAILY TASKS MODULE
 // ----------------------------------------------------
-function formatHeaderDate(isoString) {
+function getWeekdayName(isoString) {
   try {
     const parts = isoString.split('-');
     const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-    return d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+    return d.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+  } catch {
+    return '';
+  }
+}
+
+function getFormattedDateText(isoString) {
+  try {
+    const parts = isoString.split('-');
+    const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+  } catch {
+    return '';
+  }
+}
+
+function getPickerLabelDate(isoString) {
+  try {
+    const parts = isoString.split('-'); // YYYY-MM-DD
+    return `${parts[1]} / ${parts[2]} / ${parts[0]}`;
   } catch {
     return isoString;
   }
@@ -552,35 +593,124 @@ function formatHeaderDate(isoString) {
 
 function renderTasks() {
   // Date Picker & Header Sync
-  document.getElementById('task-date-header').textContent = formatHeaderDate(activeTaskDate);
-  document.getElementById('task-date-picker').value = activeTaskDate;
+  const weekdayEl = document.getElementById('task-date-weekday');
+  if (weekdayEl) {
+    weekdayEl.textContent = getWeekdayName(activeTaskDate);
+  }
+  const formattedEl = document.getElementById('task-date-formatted');
+  if (formattedEl) {
+    formattedEl.textContent = getFormattedDateText(activeTaskDate);
+  }
+  const labelEl = document.getElementById('task-date-picker-label');
+  if (labelEl) {
+    labelEl.textContent = getPickerLabelDate(activeTaskDate);
+  }
+  const pickerEl = document.getElementById('task-date-picker');
+  if (pickerEl) {
+    pickerEl.value = activeTaskDate;
+  }
+
+  // Today button dynamic styling
+  const todayBtn = document.getElementById('today-btn');
+  if (todayBtn) {
+    const todayStr = toLocalISODate(new Date());
+    if (activeTaskDate === todayStr) {
+      todayBtn.className = "h-9 px-4 flex items-center justify-center bg-[#ff5252] hover:bg-[#ff3b3b] dark:bg-red-600 dark:hover:bg-red-500 text-white text-[11px] font-black uppercase tracking-wider rounded-md transition-all cursor-pointer shadow-sm border border-transparent";
+    } else {
+      todayBtn.className = "h-9 px-4 flex items-center justify-center bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold uppercase tracking-wider rounded-md transition-all cursor-pointer shadow-xs";
+    }
+  }
 
   // 1. Filter tasks for current date
   const activeTasks = tasks.filter(t => t.targetDate === activeTaskDate);
 
-  // 2. Locate uncompleted tasks from past dates
-  const pastUncompleted = tasks.filter(t => t.targetDate < activeTaskDate && !t.completed);
-  const alertContainer = document.getElementById('past-uncompleted-alert');
+  // 2. Locate uncompleted tasks from past dates and populate Pending Past Days Sidebar
+  const todayStr = toLocalISODate(new Date());
+  const pendingPastTasks = tasks.filter(t => t.targetDate < todayStr && !t.completed);
+  const uniquePendingDatesSet = new Set(pendingPastTasks.map(t => t.targetDate));
+  const uniquePendingDates = Array.from(uniquePendingDatesSet).sort((a, b) => b.localeCompare(a));
   
-  if (pastUncompleted.length > 0) {
-    alertContainer.classList.remove('hidden');
-    document.getElementById('past-alert-title').textContent = `You have ${pastUncompleted.length} uncompleted task${pastUncompleted.length > 1 ? 's' : ''} from past days`;
-    
-    const listHTML = pastUncompleted.map(pt => `
-      <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-2.5 rounded-xl text-xs text-slate-800 dark:text-slate-200">
-        <div class="truncate pr-4 min-w-0">
-          <span class="font-bold text-[10px] bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 px-2 py-0.5 rounded mr-2 font-mono">${pt.targetDate}</span>
-          <span class="font-semibold">${pt.title}</span>
-        </div>
-        <button onclick="rescheduleTask('${pt.id}')" class="text-[10px] shrink-0 font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 transition flex items-center gap-1 cursor-pointer whitespace-nowrap">
-          Reschedule
-          <i data-lucide="arrow-right" class="w-3 h-3"></i>
-        </button>
-      </div>
-    `).join('');
-    document.getElementById('past-alert-list').innerHTML = listHTML;
-  } else {
-    alertContainer.classList.add('hidden');
+  const sidebarContainer = document.getElementById('pending-days-sidebar');
+  const listContainer = document.getElementById('pending-days-list');
+  const boardCol = document.getElementById('tasks-board-column');
+  
+  if (sidebarContainer && listContainer) {
+    if (uniquePendingDates.length > 0) {
+      sidebarContainer.classList.remove('hidden');
+      if (boardCol) {
+        boardCol.className = "lg:col-span-8 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden";
+      }
+      listContainer.innerHTML = uniquePendingDates.map(dateStr => {
+        const tasksForDate = pendingPastTasks.filter(t => t.targetDate === dateStr);
+        const count = tasksForDate.length;
+        const parts = dateStr.split('-');
+        const dateObj = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        const readableDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        
+        const isOpen = openSidebarDates.has(dateStr);
+        const chevronIcon = isOpen ? "chevron-down" : "chevron-right";
+        const contentClass = isOpen ? "" : "hidden";
+        
+        const tasksHTML = tasksForDate.map(task => `
+          <div class="flex items-center justify-between gap-3 text-xs p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900/50 transition">
+            <div class="flex items-center gap-2 min-w-0">
+              <button onclick="toggleTaskCompletion('${task.id}')" type="button"
+                class="p-0.5 shrink-0 rounded transition-colors text-slate-400 hover:text-emerald-500 cursor-pointer">
+                <i data-lucide="circle" class="w-3.5 h-3.5"></i>
+              </button>
+              <span class="truncate text-[10px] text-slate-700 dark:text-slate-300 font-semibold leading-tight">${task.title}</span>
+            </div>
+            <button onclick="rescheduleSidebarTask('${task.id}')" type="button" title="Reschedule to today"
+              class="text-[9px] shrink-0 font-bold bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-1 rounded border border-slate-100 dark:border-slate-800 transition flex items-center gap-1 cursor-pointer whitespace-nowrap">
+              Reschedule <i data-lucide="arrow-right" class="w-2.5 h-2.5"></i>
+            </button>
+          </div>
+        `).join('');
+        
+        return `
+          <div class="border border-slate-100 dark:border-slate-800/60 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 overflow-hidden shadow-2xs transition-all duration-200">
+            <!-- Accordion Header -->
+            <div class="p-3 flex items-center justify-between gap-2 cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-900/80 transition"
+                 onclick="toggleSidebarAccordion('${dateStr}')">
+              <div class="flex items-center gap-2">
+                <i data-lucide="${chevronIcon}" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500"></i>
+                <div>
+                  <p class="text-[11px] font-bold text-slate-800 dark:text-slate-200 font-mono leading-none">${dateStr}</p>
+                  <p class="text-[9px] text-slate-400 dark:text-slate-500 font-semibold mt-1.5">${readableDate}</p>
+                </div>
+              </div>
+              
+              <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-500/15">
+                ${count} pending
+              </span>
+            </div>
+
+            <!-- Accordion Content -->
+            <div class="${contentClass} border-t border-slate-100 dark:border-slate-800/50 p-3 bg-white dark:bg-slate-950 space-y-2 animate-fadeIn">
+              <!-- Jump to Date Action -->
+              <div class="flex justify-between items-center pb-2 border-b border-dashed border-slate-100 dark:border-slate-800/40">
+                <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Missed Items</span>
+                <button onclick="setTaskDate('${dateStr}')" type="button"
+                  class="text-[9px] font-bold text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 flex items-center gap-1 cursor-pointer">
+                  Jump to Day <i data-lucide="arrow-right" class="w-2.5 h-2.5"></i>
+                </button>
+              </div>
+              
+              <!-- Tasks List -->
+              <div class="space-y-1.5 mt-1.5">
+                ${tasksHTML}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      sidebarContainer.classList.add('hidden');
+      if (boardCol) {
+        boardCol.className = "lg:col-span-12 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden";
+      }
+      listContainer.innerHTML = '';
+    }
   }
 
   // 3. Render active day tasks list
@@ -600,11 +730,11 @@ function renderTasks() {
     // Priority badge HTML
     let priorityBadge = "";
     if (task.priority === 'high') {
-      priorityBadge = `<span class="text-[9px] font-bold px-2 py-0.5 rounded bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-300 mr-1.5 shrink-0 border border-rose-500/20">High</span>`;
+      priorityBadge = `<span class="text-[9px] font-bold px-2 py-0.5 rounded bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-300 shrink-0 border border-rose-500/20">High</span>`;
     } else if (task.priority === 'low') {
-      priorityBadge = `<span class="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300 mr-1.5 shrink-0 border border-emerald-500/20">Low</span>`;
+      priorityBadge = `<span class="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300 shrink-0 border border-emerald-500/20">Low</span>`;
     } else {
-      priorityBadge = `<span class="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-300 mr-1.5 shrink-0 border border-amber-500/20">Medium</span>`;
+      priorityBadge = `<span class="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-300 shrink-0 border border-amber-500/20">Medium</span>`;
     }
 
     // Subtask progress indicator calculations
@@ -619,7 +749,7 @@ function renderTasks() {
       else if (task.priority === "low") barColor = "bg-emerald-500";
       
       subtaskProgressBar = `
-        <div class="mt-2.5 flex items-center gap-2">
+        <div class="mt-1.5 flex items-center gap-2">
           <div class="flex-1 bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
             <div class="${barColor} h-full rounded-full transition-all duration-300" style="width: ${subtaskPct}%;"></div>
           </div>
@@ -628,33 +758,16 @@ function renderTasks() {
       `;
     }
 
-    return `
-      <div class="p-4 border transition duration-200 rounded-xl ${task.completed ? 'bg-slate-50/50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/80 opacity-60 shadow-none' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm'}">
-        <div class="flex items-start justify-between gap-4">
-          <div class="flex items-start gap-3 min-w-0 flex-1">
-            <button onclick="toggleTaskCompletion('${task.id}')" class="p-0.5 mt-0.5 shrink-0 rounded-lg transition-colors cursor-pointer ${task.completed ? 'text-slate-500 dark:text-slate-400' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}">
-              <i data-lucide="${task.completed ? 'check-square' : 'square'}" class="w-5 h-5"></i>
-            </button>
-            <div class="min-w-0 pr-4 flex flex-wrap items-center gap-y-1">
-              ${priorityBadge}
-              <h3 class="text-xs font-bold leading-tight ${task.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-100'}">${task.title}</h3>
-            </div>
-          </div>
-          <button onclick="deleteTask('${task.id}')" class="text-slate-400 hover:text-rose-600 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-          </button>
-        </div>
-
-        <!-- Progress metrics bar -->
-        ${subtaskProgressBar}
-
+    let subtaskContainer = "";
+    if (subtasksCount > 0) {
+      subtaskContainer = `
         <!-- Micro-step subtasks -->
-        <div class="mt-3.5 pl-6 border-l border-slate-200 dark:border-slate-800 block space-y-1.5">
+        <div class="mt-2 pl-4 border-l border-slate-200 dark:border-slate-800 block space-y-1">
           ${(task.subtasks || []).map(sub => `
             <div class="flex justify-between items-center gap-4 text-xs group">
               <button onclick="toggleSubtask('${task.id}', '${sub.id}')" class="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-left min-w-0 flex-1 cursor-pointer select-none">
-                <span class="${sub.completed ? 'text-slate-500' : 'text-slate-400'}">
-                  <i data-lucide="${sub.completed ? 'check-square' : 'square'}" class="w-4 h-4"></i>
+                <span class="${sub.completed ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-400'}">
+                  <i data-lucide="${sub.completed ? 'check-circle' : 'circle'}" class="w-4 h-4"></i>
                 </span>
                 <span class="truncate text-xs ${sub.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-200'} font-semibold">${sub.title}</span>
               </button>
@@ -663,16 +776,66 @@ function renderTasks() {
               </button>
             </div>
           `).join('')}
-
-          <!-- Subtask Add form -->
-          <form onsubmit="addSubtask('${task.id}', event)" class="flex gap-2 pt-1.5">
-            <input type="text" id="subtask-input-${task.id}" required placeholder="Add step/subtask..." class="w-full text-xs p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-400 dark:focus:border-slate-700 dark:text-slate-200 font-semibold">
-            <button type="submit" class="p-1 px-3 text-[11px] bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg font-bold transition active:scale-[0.98] cursor-pointer">Add Step</button>
-          </form>
         </div>
+      `;
+    }
+
+    return `
+      <div class="task-card-wrapper py-2.5 px-3.5 border transition duration-200 rounded-xl ${task.completed ? 'bg-slate-50/50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/80 opacity-60 shadow-none' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm'}">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3 min-w-0 flex-1">
+            <button onclick="toggleTaskCompletion('${task.id}')" class="p-0.5 shrink-0 rounded-lg transition-colors cursor-pointer ${task.completed ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}">
+              <i data-lucide="${task.completed ? 'check-circle' : 'circle'}" class="w-5 h-5"></i>
+            </button>
+            <div class="min-w-0 pr-4">
+              <h3 class="text-xs font-bold leading-none ${task.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-100'}">${task.title}</h3>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-2 shrink-0 relative">
+            ${priorityBadge}
+            
+            <!-- Three Dots Menu Button -->
+            <button onclick="toggleTaskMenu('${task.id}', event)" type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer">
+              <i data-lucide="more-vertical" class="w-3.5 h-3.5"></i>
+            </button>
+            
+            <!-- Dropdown Menu -->
+            <div id="task-menu-${task.id}" class="hidden absolute right-0 top-full mt-1 w-40 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-1.5 z-30 font-sans">
+              <button onclick="triggerAddSubtask('${task.id}', event)" type="button" class="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold flex items-center gap-2 cursor-pointer">
+                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Add Subtask
+              </button>
+              <button onclick="triggerChangeTaskDate('${task.id}', event)" type="button" class="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold flex items-center gap-2 cursor-pointer">
+                <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Change Date
+              </button>
+              <div class="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
+              <button onclick="deleteTask('${task.id}')" type="button" class="w-full text-left px-3 py-2 text-xs text-rose-600 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 font-bold flex items-center gap-2 cursor-pointer">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete Task
+              </button>
+            </div>
+            
+            <!-- Hidden Date Input for Rescheduling -->
+            <input type="date" id="change-date-input-${task.id}" onchange="changeTaskDate('${task.id}', this.value)" onclick="event.stopPropagation()" class="absolute pointer-events-none opacity-0 w-0 h-0">
+          </div>
+        </div>
+
+        <!-- Progress metrics bar -->
+        ${subtaskProgressBar}
+
+        <!-- Micro-step subtasks -->
+        ${subtaskContainer}
       </div>
     `;
-  }).join('');
+  }).join('') + '<div class="h-28 shrink-0"></div>';
+}
+
+function openDatePicker() {
+  const picker = document.getElementById('task-date-picker');
+  if (picker && typeof picker.showPicker === 'function') {
+    picker.showPicker();
+  } else if (picker) {
+    picker.click();
+  }
 }
 
 function setTaskDate(val) {
@@ -681,7 +844,7 @@ function setTaskDate(val) {
 }
 
 function setTaskDateToday() {
-  activeTaskDate = new Date().toISOString().split('T')[0];
+  activeTaskDate = toLocalISODate(new Date());
   renderAll();
 }
 
@@ -689,7 +852,7 @@ function navigateDay(amt) {
   const parts = activeTaskDate.split('-');
   const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
   d.setDate(d.getDate() + amt);
-  activeTaskDate = d.toISOString().split('T')[0];
+  activeTaskDate = toLocalISODate(d);
   renderAll();
 }
 
@@ -785,6 +948,26 @@ function deleteSubtask(taskId, subId) {
   saveState();
 }
 
+function toggleSidebarAccordion(dateStr) {
+  if (openSidebarDates.has(dateStr)) {
+    openSidebarDates.delete(dateStr);
+  } else {
+    openSidebarDates.add(dateStr);
+  }
+  renderAll();
+}
+
+function rescheduleSidebarTask(taskId) {
+  const task = tasks.find(t => t.id === taskId);
+  if (!task) return;
+  const todayStr = toLocalISODate(new Date());
+  task.targetDate = todayStr;
+  task.createdAt = new Date().toISOString();
+  pushNotificationLog("🚀 Rescheduled", `Rescheduled task "${task.title}" to today (${todayStr})`);
+  showToast("🚀 Task Rescheduled", `Moved task to today.`, "info");
+  saveState();
+}
+
 function rescheduleTask(taskId) {
   const task = tasks.find(t => t.id === taskId);
   if (!task) return;
@@ -792,6 +975,86 @@ function rescheduleTask(taskId) {
   task.createdAt = new Date().toISOString();
   pushNotificationLog("🚀 Rescheduled", `Rescheduled task "${task.title}" to ${activeTaskDate}`);
   showToast("🚀 Task Rescheduled", `Moved task to ${activeTaskDate}.`, "info");
+  saveState();
+}
+
+function toggleTaskMenu(taskId, event) {
+  if (event) event.stopPropagation();
+  
+  // Hide all other menus first
+  document.querySelectorAll('[id^="task-menu-"]').forEach(menu => {
+    if (menu.id !== `task-menu-${taskId}`) {
+      menu.classList.add('hidden');
+      const parentCard = menu.closest('.task-card-wrapper');
+      if (parentCard) parentCard.classList.remove('z-40', 'relative');
+    }
+  });
+  
+  const menu = document.getElementById(`task-menu-${taskId}`);
+  if (menu) {
+    menu.classList.toggle('hidden');
+    const parentCard = menu.closest('.task-card-wrapper');
+    if (parentCard) {
+      if (!menu.classList.contains('hidden')) {
+        parentCard.classList.add('z-40', 'relative');
+      } else {
+        parentCard.classList.remove('z-40', 'relative');
+      }
+    }
+  }
+}
+
+function triggerAddSubtask(taskId, event) {
+  if (event) event.stopPropagation();
+  const menu = document.getElementById(`task-menu-${taskId}`);
+  if (menu) {
+    menu.classList.add('hidden');
+    const parentCard = menu.closest('.task-card-wrapper');
+    if (parentCard) parentCard.classList.remove('z-40', 'relative');
+  }
+  
+  const title = prompt("Enter subtask step title:");
+  if (title && title.trim()) {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    const newSub = {
+      id: Math.random().toString(36).substr(2, 9),
+      title: title.trim(),
+      completed: false
+    };
+    task.subtasks.push(newSub);
+    task.completed = false; // Reset task completion since new step added
+    showToast("➕ Step Added", "Micro-step added to task checklist.", "success");
+    saveState();
+  }
+}
+
+function triggerChangeTaskDate(taskId, event) {
+  if (event) event.stopPropagation();
+  const menu = document.getElementById(`task-menu-${taskId}`);
+  if (menu) {
+    menu.classList.add('hidden');
+    const parentCard = menu.closest('.task-card-wrapper');
+    if (parentCard) parentCard.classList.remove('z-40', 'relative');
+  }
+  
+  const dateInput = document.getElementById(`change-date-input-${taskId}`);
+  if (dateInput) {
+    if (typeof dateInput.showPicker === 'function') {
+      dateInput.showPicker();
+    } else {
+      dateInput.click();
+    }
+  }
+}
+
+function changeTaskDate(taskId, newDate) {
+  if (!newDate) return;
+  const task = tasks.find(t => t.id === taskId);
+  if (!task) return;
+  const oldDate = task.targetDate;
+  task.targetDate = newDate;
+  showToast("🚀 Task Rescheduled", `Moved task from ${oldDate} to ${newDate}.`, "success");
   saveState();
 }
 
@@ -835,10 +1098,10 @@ function renderGoals() {
   }
 
   container.innerHTML = filtered.map(goal => `
-    <div class="p-3.5 border transition duration-200 rounded-xl flex items-center justify-between gap-4 select-none ${goal.completed ? 'bg-slate-50/50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/80 opacity-60 shadow-none' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm'}">
+    <div class="p-2.5 border transition duration-200 rounded-xl flex items-center justify-between gap-4 select-none ${goal.completed ? 'bg-slate-50/50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/80 opacity-60 shadow-none' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm'}">
       <div class="flex items-center gap-3.5 min-w-0 flex-1">
         <button onclick="toggleGoal('${goal.id}')" class="shrink-0 cursor-pointer rounded-lg p-0.5 transition-colors ${goal.completed ? 'text-emerald-600 dark:text-emerald-500' : 'text-slate-400 hover:text-emerald-500'}">
-          <i data-lucide="${goal.completed ? 'check-square' : 'square'}" class="w-5 h-5"></i>
+          <i data-lucide="${goal.completed ? 'check-circle' : 'circle'}" class="w-5 h-5"></i>
         </button>
         <div class="min-w-0 font-sans">
           <p class="text-xs font-bold tracking-tight leading-tight ${goal.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-100'}">${goal.title}</p>
@@ -852,7 +1115,7 @@ function renderGoals() {
         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
       </button>
     </div>
-  `).join('');
+  `).join('') + '<div class="h-16 shrink-0"></div>';
 }
 
 function setGoalFilter(filterId) {
@@ -950,7 +1213,7 @@ function renderThoughts() {
     }
 
     return `
-      <div class="thought-card ${categoryClass} p-4 rounded-xl flex flex-col gap-2">
+      <div class="thought-card ${categoryClass} py-2.5 px-3.5 rounded-xl flex flex-col gap-2">
         ${editingThoughtId === th.id ? `
           <div class="flex flex-col gap-2">
             <textarea id="edit-thought-textarea-${th.id}" rows="2" class="w-full text-xs p-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-400 dark:focus:border-slate-700 dark:text-slate-100 resize-none font-sans font-semibold">${th.content}</textarea>
@@ -1001,7 +1264,7 @@ function renderThoughts() {
         `}
       </div>
     `;
-  }).join('');
+  }).join('') + '<div class="h-16 shrink-0"></div>';
 }
 
 function searchThoughts(val) {

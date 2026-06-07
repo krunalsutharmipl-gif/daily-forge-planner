@@ -37,7 +37,7 @@
 </head>
 
 <body
-  class="min-h-screen bg-slate-50 dark:bg-[#070514] text-slate-800 dark:text-slate-200 font-sans transition-colors duration-200 relative overflow-x-hidden pb-20 md:pb-0">
+  class="h-screen bg-slate-50 dark:bg-[#070514] text-slate-800 dark:text-slate-200 font-sans transition-colors duration-200 relative flex flex-col overflow-hidden pb-20 md:pb-0">
 
   <!-- Premium Ambient Glassmorphism Backdrops - Inspired by visual mesh -->
   <div class="absolute inset-0 -z-30 overflow-hidden pointer-events-none">
@@ -54,7 +54,7 @@
 
   <!-- Header Navigation -->
   <header
-    class="sticky top-0 z-40 bg-white/80 dark:bg-[#070514]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/60 transition-colors shadow-sm">
+    class="sticky top-0 z-40 bg-white/80 dark:bg-[#070514]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/60 transition-colors shadow-sm shrink-0">
     <div
       class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-row items-center justify-between gap-4 font-sans">
 
@@ -110,13 +110,13 @@
   </header>
 
   <!-- Main Container -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 lg:py-8">
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 overflow-hidden flex flex-col">
 
     <!-- Active Tab Containers -->
-    <div id="tab-content" class="transition-all duration-205">
+    <div id="tab-content" class="transition-all duration-205 flex-1 overflow-hidden flex flex-col w-full">
 
       <!-- 1. Workspace (Dashboard) View -->
-      <div id="content-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div id="content-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-1 overflow-y-auto w-full pr-1">
 
         <!-- Welcome Banner -->
         <div
@@ -414,10 +414,10 @@
       </div>
 
       <!-- 2. Tasks View -->
-      <div id="content-tasks" class="hidden max-w-5xl mx-auto space-y-4">
+      <div id="content-tasks" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-hidden w-full">
 
         <!-- Header Info Card -->
-        <div class="glass-card rounded-2xl p-5 flex items-center justify-between shadow-sm">
+        <div class="glass-card rounded-2xl p-5 flex items-center justify-between shadow-sm shrink-0">
           <div>
             <h3 class="text-base font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-display">Daily
               Schedule & Agenda</h3>
@@ -425,101 +425,109 @@
               isolated timeline logs.</p>
           </div>
           <div
-            class="bg-slate-100 dark:bg-slate-800 p-2.5 rounded-xl text-slate-700 dark:text-slate-300 shadow-xs animate-pulse">
+            class="bg-slate-100 dark:bg-slate-800 p-2.5 rounded-xl text-slate-700 dark:text-slate-300 shadow-xs animate-pulse shrink-0">
             <i data-lucide="list-todo" class="w-5 h-5"></i>
           </div>
         </div>
 
-        <!-- Main Card Section -->
-        <div
-          class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500">
+        <!-- Main Layout Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch w-full flex-1 overflow-hidden">
+          <!-- Left Column: Tasks Board -->
+          <div id="tasks-board-column" class="lg:col-span-8 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden">
 
-          <!-- Past Uncompleted Warning Alert -->
-          <div id="past-uncompleted-alert"
-            class="hidden mb-6 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-xl shadow-xs">
-            <div class="flex gap-3 items-start">
-              <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-500 shrink-0 mt-0.5"></i>
-              <div class="flex-1 min-w-0">
-                <h4 id="past-alert-title" class="text-sm font-bold text-amber-900 dark:text-amber-400 font-display">
-                  Uncompleted past tasks pending</h4>
-                <p class="text-xs text-amber-800/80 dark:text-amber-400 mt-1 leading-relaxed font-semibold">
-                  Your past unfinished agenda items remain safely locked into their original days. Reschedule them to
-                  active view below.
-                </p>
-                <div id="past-alert-list" class="mt-3 space-y-2 max-h-40 overflow-y-auto pr-1 font-sans">
-                  <!-- JS handles past entries list -->
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Date Navigation Bar -->
-          <div
-            class="flex items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5 mb-5 font-sans">
-            <button onclick="navigateDay(-1)"
-              class="p-2 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-lg transition-all cursor-pointer shadow-xs">
-              <i data-lucide="chevron-left" class="w-4 h-4 text-slate-700 dark:text-slate-300"></i>
-            </button>
-
-            <div class="flex flex-col items-center">
-              <h2 id="task-date-header"
-                class="text-sm font-extrabold text-slate-900 dark:text-white text-center font-display uppercase tracking-wider">
-                Date
-              </h2>
-
-              <div class="flex items-center gap-2 mt-2">
-                <button onclick="setTaskDateToday()"
-                  class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 transition cursor-pointer">
+            <!-- Date Navigation Bar -->
+            <div
+              class="flex items-start justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5 mb-5 font-sans shrink-0">
+              <!-- Left Side: Buttons Group -->
+              <div class="flex items-center gap-2">
+                <button onclick="navigateDay(-1)" type="button"
+                  class="w-9 h-9 flex items-center justify-center bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-md transition-all cursor-pointer shadow-xs">
+                  <i data-lucide="chevron-left" class="w-4 h-4 text-slate-700 dark:text-slate-300"></i>
+                </button>
+                <button id="today-btn" onclick="setTaskDateToday()" type="button"
+                  class="h-9 px-4 flex items-center justify-center bg-[#ff5252] hover:bg-[#ff3b3b] dark:bg-red-600 dark:hover:bg-red-500 text-white text-[11px] font-black uppercase tracking-wider rounded-md transition-all cursor-pointer shadow-sm">
                   Today
                 </button>
-                <div class="relative flex items-center text-slate-400 dark:text-slate-300 font-mono">
-                  <i data-lucide="calendar" class="w-3 h-3 absolute left-2 pointer-events-none text-slate-400"></i>
+                <button onclick="navigateDay(1)" type="button"
+                  class="w-9 h-9 flex items-center justify-center bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-md transition-all cursor-pointer shadow-xs">
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-700 dark:text-slate-300"></i>
+                </button>
+              </div>
+
+              <!-- Right Side: Date display and picker -->
+              <div class="flex flex-col items-end">
+                <h2 id="task-date-weekday"
+                  class="text-xl font-extrabold text-slate-800 dark:text-white font-display uppercase tracking-widest leading-none">
+                  Date
+                </h2>
+                <p id="task-date-formatted"
+                  class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-1.5">
+                  Date Details
+                </p>
+                
+                <!-- Custom styled date picker container -->
+                <div onclick="openDatePicker()" class="relative mt-4 flex items-center border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 px-3 py-2 text-[11px] font-bold text-slate-700 dark:text-slate-300 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition cursor-pointer min-w-[170px] justify-between">
+                  <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 mr-2 shrink-0"></i>
+                  <span id="task-date-picker-label" class="font-mono flex-1 text-center text-slate-600 dark:text-slate-400">06 / 06 / 2026</span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 ml-2 shrink-0"></i>
                   <input type="date" id="task-date-picker" onchange="setTaskDate(this.value)"
-                    class="text-[10px] font-bold bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 pl-7 pr-2 py-1.5 rounded-md focus:outline-none cursor-pointer focus:border-slate-400 dark:focus:border-slate-700">
+                    class="absolute inset-0 opacity-0 pointer-events-none w-full h-full">
                 </div>
               </div>
             </div>
 
-            <button onclick="navigateDay(1)"
-              class="p-2 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-lg transition-all cursor-pointer shadow-xs">
-              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-700 dark:text-slate-300"></i>
-            </button>
-          </div>
+            <!-- Task Creation Input Form -->
+            <form onsubmit="addTask(event)" class="flex flex-col sm:flex-row gap-2.5 mb-6 shrink-0">
+              <input type="text" id="new-task-input" required placeholder="Create new task..."
+                class="flex-1 text-xs p-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 font-semibold transition-all">
 
-          <!-- Task Creation Input Form -->
-          <form onsubmit="addTask(event)" class="flex flex-col sm:flex-row gap-2.5 mb-6">
-            <input type="text" id="new-task-input" required placeholder="Create new task..."
-              class="flex-1 text-xs p-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 font-semibold transition-all">
+              <div class="flex gap-2">
+                <select id="new-task-priority"
+                  class="text-xs bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-2.5 py-2 focus:outline-none dark:text-slate-200 font-bold cursor-pointer shrink-0">
+                  <option value="low">🟢 Low Priority</option>
+                  <option value="medium" selected>🟡 Medium Priority</option>
+                  <option value="high">🔴 High Priority</option>
+                </select>
 
-            <div class="flex gap-2">
-              <select id="new-task-priority"
-                class="text-xs bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-2.5 py-2 focus:outline-none dark:text-slate-200 font-bold cursor-pointer">
-                <option value="low">🟢 Low Priority</option>
-                <option value="medium" selected>🟡 Medium Priority</option>
-                <option value="high">🔴 High Priority</option>
-              </select>
+                <button type="submit"
+                  class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs px-5 py-2 rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 transition cursor-pointer shadow-sm shrink-0">
+                  Add Task
+                </button>
+              </div>
+            </form>
 
-              <button type="submit"
-                class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs px-5 py-2 rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 transition cursor-pointer shadow-sm">
-                Add Task
-              </button>
+            <!-- Day-Wise Task List Board -->
+            <div id="tasks-list-container" class="space-y-2 flex-1 overflow-y-auto pr-1 pb-4 font-sans">
+              <!-- JS populates task details -->
             </div>
-          </form>
 
-          <!-- Day-Wise Task List Board -->
-          <div id="tasks-list-container" class="space-y-3 max-h-[500px] overflow-y-auto pr-1 font-sans">
-            <!-- JS populates task details -->
           </div>
 
+          <!-- Right Column: Sidebar -->
+          <div class="lg:col-span-4 space-y-4 w-full h-full flex flex-col overflow-hidden">
+            <!-- Pending Days Sidebar Card -->
+            <div id="pending-days-sidebar" class="glass-card rounded-2xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 border-l-4 border-l-amber-500 hidden max-h-full flex flex-col overflow-hidden">
+              <h3 class="text-sm font-extrabold text-slate-900 dark:text-slate-100 font-display flex items-center gap-2 shrink-0">
+                <i data-lucide="alert-circle" class="w-4 h-4 text-amber-500"></i>
+                Pending Past Tasks
+              </h3>
+              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1.5 font-semibold leading-normal shrink-0">
+                Click on a date below to jump to that day and check the pending items.
+              </p>
+              <div id="pending-days-list" class="mt-4 space-y-2.5 flex-1 overflow-y-auto pr-1">
+                <!-- Dynamically populated clickable dates -->
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>
 
       <!-- 3. Goals View -->
-      <div id="content-goals" class="hidden max-w-5xl mx-auto space-y-4">
+      <div id="content-goals" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-hidden w-full">
 
         <!-- Header Info Card -->
-        <div class="glass-card rounded-2xl p-5 flex items-center justify-between shadow-sm">
+        <div class="glass-card rounded-2xl p-5 flex items-center justify-between shadow-sm shrink-0">
           <div>
             <h3 class="text-base font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-display">Focus
               Targets & Commitments</h3>
@@ -533,11 +541,11 @@
 
         <!-- Main Card Section -->
         <div
-          class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-emerald-500 mb-6">
+          class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-emerald-500 flex-1 flex flex-col overflow-hidden w-full">
 
           <!-- Overview stats row -->
           <div
-            class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 mb-6 border-b border-slate-200 dark:border-slate-800">
+            class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
             <div>
               <h2 class="text-base font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2 font-display">
                 <i data-lucide="target" class="w-4 h-4 text-emerald-500"></i>
@@ -571,7 +579,7 @@
 
           <!-- Insert Goal Form -->
           <form onsubmit="addGoal(event)"
-            class="flex flex-col sm:flex-row gap-3 mb-6 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+            class="flex flex-col sm:flex-row gap-3 mb-4 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0">
             <div class="flex-1 min-w-0">
               <input type="text" id="new-goal-input" required placeholder="Goal statement: read, work, workout..."
                 class="w-full text-xs p-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 font-sans font-semibold">
@@ -589,7 +597,7 @@
           </form>
 
           <!-- Filters toggles -->
-          <div class="flex gap-2 mb-4 border-b border-slate-200 dark:border-slate-800 pb-3 font-sans">
+          <div class="flex gap-2 mb-3 border-b border-slate-200 dark:border-slate-800 pb-2.5 font-sans shrink-0">
             <button onclick="setGoalFilter('all')" id="goal-filter-all"
               class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm cursor-pointer select-none">All</button>
             <button onclick="setGoalFilter('active')" id="goal-filter-active"
@@ -599,7 +607,7 @@
           </div>
 
           <!-- Goal List container -->
-          <div id="goals-list-container" class="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
+          <div id="goals-list-container" class="space-y-2 flex-1 overflow-y-auto pr-1 pb-4">
             <!-- JS populated -->
           </div>
 
@@ -608,10 +616,10 @@
       </div>
 
       <!-- 4. Thoughts View -->
-      <div id="content-thoughts" class="hidden max-w-5xl mx-auto space-y-4">
+      <div id="content-thoughts" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-hidden w-full">
 
         <!-- Header Info Card -->
-        <div class="glass-card rounded-2xl p-5 flex items-center justify-between shadow-sm">
+        <div class="glass-card rounded-2xl p-5 flex items-center justify-between shadow-sm shrink-0">
           <div>
             <h3 class="text-base font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-display">Thought
               Stream Logger</h3>
@@ -625,9 +633,9 @@
 
         <!-- Main Card Section -->
         <div
-          class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 mb-6">
+          class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 flex-1 flex flex-col overflow-hidden w-full">
 
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 font-sans">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 font-sans shrink-0">
             <div>
               <h2
                 class="text-base font-extrabold text-slate-900 dark:text-slate-50 flex items-center gap-2 font-display">
@@ -650,7 +658,7 @@
 
           <!-- Thought Creator Textarea Form -->
           <form onsubmit="addThought(event)"
-            class="mb-6 font-sans bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+            class="mb-4 font-sans bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0">
             <textarea id="new-thought-input" rows="3" required
               placeholder="What's on your mind right now? Capture ideas instantly..."
               class="w-full text-xs p-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 resize-none leading-relaxed transition-all font-semibold"></textarea>
@@ -677,7 +685,7 @@
           </form>
 
           <!-- Thoughts list Container -->
-          <div id="thoughts-list-container" class="space-y-3.5 max-h-[440px] overflow-y-auto pr-1 font-sans">
+          <div id="thoughts-list-container" class="space-y-2 flex-1 overflow-y-auto pr-1 pb-4 font-sans">
             <!-- JS populated -->
           </div>
 
@@ -689,13 +697,7 @@
 
   </main>
 
-  <!-- Footer copyright -->
-  <footer
-    class="py-8 text-center text-[10px] text-slate-400 dark:text-slate-500 transition-colors relative z-10 font-medium">
-    <p>&copy; <span id="current-year">2026</span> Daily Forge Planner. All Rights Reserved.</p>
-    <p class="mt-1">Built as a standalone lightweight website with zero dependencies, local-first execution, and native
-      LocalStorage backups.</p>
-  </footer>
+
 
   <!-- Custom Confirm Modal -->
   <div id="confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
