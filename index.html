@@ -209,17 +209,17 @@
   </header>
 
   <!-- Main Container -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 overflow-hidden flex flex-col min-h-0">
+  <main class="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 py-4 sm:py-6 overflow-hidden flex flex-col min-h-0">
 
     <!-- Active Tab Containers -->
     <div id="tab-content" class="transition-all duration-205 flex-1 overflow-hidden flex flex-col w-full min-h-0">
 
       <!-- 1. Workspace (Dashboard) View -->
-      <div id="content-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-1 overflow-y-auto w-full pr-1 pb-24 lg:pb-0">
+      <div id="content-dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-start flex-1 overflow-y-auto w-full pr-1 pb-24 lg:pb-0">
 
         <!-- Welcome Banner -->
         <div
-          class="lg:col-span-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+          class="lg:col-span-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
           <div>
             <h2 id="greeting-title"
               class="text-xl sm:text-2xl font-bold tracking-tight font-display text-slate-900 dark:text-white">
@@ -238,11 +238,11 @@
         </div>
 
         <!-- Left Column: User Profile & Notification Manager -->
-        <div class="lg:col-span-4 space-y-6">
+        <div class="lg:col-span-4 space-y-4 lg:space-y-6">
 
           <!-- User Profile Card -->
           <div
-            class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 overflow-hidden">
+            class="glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 overflow-hidden">
             <div class="flex items-center gap-4">
               <!-- Avatar -->
               <div
@@ -328,7 +328,7 @@
 
           <!-- Notification Hub Card -->
           <div
-            class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200">
+            class="glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200">
             <div
               class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-slate-200 dark:border-slate-800">
               <div>
@@ -383,7 +383,7 @@
         <div class="lg:col-span-8">
 
           <div
-            class="glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 mb-6">
+            class="glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 mb-4 lg:mb-6">
             <div class="flex items-center gap-2 mb-6">
               <i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-500 dark:text-slate-400"></i>
               <h2 class="text-base font-bold text-slate-900 dark:text-slate-50 font-display">Productivity Diagnostics &
@@ -441,7 +441,7 @@
 
             <!-- Rings Chart Overlay -->
             <div id="analytics-graphic-box"
-              class="mb-6 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-5 rounded-xl">
+              class="mb-4 lg:mb-6 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 rounded-xl">
               <h3
                 class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-1.5 font-display">
                 <i data-lucide="award" class="w-4 h-4 text-amber-500"></i>
@@ -521,12 +521,12 @@
       </div>
 
       <!-- 2. Tasks View -->
-      <div id="content-tasks" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-hidden w-full min-h-0">
+      <div id="content-tasks" class="hidden max-w-5xl mx-auto space-y-3 sm:space-y-4 flex-1 flex flex-col overflow-hidden w-full min-h-0">
 
         <!-- Main Layout Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:items-stretch items-start w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0 pb-24 lg:pb-0">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-start w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0 pb-24 lg:pb-0">
           <!-- Left Column: Tasks Board -->
-          <div id="tasks-board-column" class="lg:col-span-8 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10">
+          <div id="tasks-board-column" class="lg:col-span-8 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10">
 
             <!-- Date Navigation Bar -->
             <div
@@ -608,7 +608,7 @@
             </button>
 
             <!-- Pending Days Sidebar Card -->
-            <div id="pending-days-sidebar" class="glass-card rounded-2xl p-4 sm:p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 border-l-4 border-l-amber-500 hidden h-auto max-h-[320px] lg:max-h-full flex flex-col overflow-hidden">
+            <div id="pending-days-sidebar" class="glass-card rounded-2xl p-4 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 border-l-4 border-l-amber-500 hidden h-auto max-h-[320px] lg:max-h-full flex flex-col overflow-hidden mb-16 lg:mb-0 relative z-10">
               <h3 class="text-sm font-extrabold text-slate-900 dark:text-slate-100 font-display flex items-center gap-2 shrink-0">
                 <i data-lucide="alert-circle" class="w-4 h-4 text-amber-500"></i>
                 Pending Past Tasks
@@ -626,13 +626,13 @@
       </div>
 
       <!-- 3. Goals View -->
-      <div id="content-goals" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-hidden w-full min-h-0">
+      <div id="content-goals" class="hidden max-w-5xl mx-auto space-y-3 sm:space-y-4 flex-1 flex flex-col overflow-hidden w-full min-h-0">
 
         <!-- Main Layout Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:items-stretch items-start w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0 pb-24 lg:pb-0">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-start w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0 pb-24 lg:pb-0">
           <!-- Main Column: Goals Card -->
           <div
-            class="lg:col-span-12 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-emerald-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10">
+            class="lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-emerald-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10">
 
             <!-- Overview stats row -->
             <div
@@ -708,13 +708,13 @@
       </div>
 
       <!-- 4. Thoughts View -->
-      <div id="content-thoughts" class="hidden max-w-5xl mx-auto space-y-4 flex-1 flex flex-col overflow-hidden w-full min-h-0">
+      <div id="content-thoughts" class="hidden max-w-5xl mx-auto space-y-3 sm:space-y-4 flex-1 flex flex-col overflow-hidden w-full min-h-0">
 
         <!-- Main Layout Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:items-stretch items-start w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0 pb-24 lg:pb-0">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-start w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0 pb-24 lg:pb-0">
           <!-- Main Column: Thoughts Card -->
           <div
-            class="lg:col-span-12 glass-card rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-violet-600 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10">
+            class="lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-violet-600 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10">
 
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 font-sans shrink-0">
               <div>
