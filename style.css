@@ -82,22 +82,17 @@
 
 /* Thoughts Category Sticky Notes Styles - Clean Glass Cards */
 .thought-card {
-  border-left-width: 4px;
+  border: 1px solid rgba(226, 232, 240, 0.7);
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(226, 232, 240, 0.7);
-  border-right: 1px solid rgba(226, 232, 240, 0.7);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 .dark .thought-card {
   background: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: none;
 }
 
@@ -124,11 +119,6 @@
 .animate-blob-3 {
   animation: blob-float-3 28s infinite ease-in-out;
 }
-
-.thought-card-idea { border-left-color: #f59e0b; }
-.thought-card-reflection { border-left-color: #8b5cf6; }
-.thought-card-learning { border-left-color: #06b6d4; }
-.thought-card-note { border-left-color: #f43f5e; }
 
 /* Custom Interactive Toast Styles */
 .toast-container {

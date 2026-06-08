@@ -730,36 +730,37 @@ function renderTasks() {
   const sidebarContainer = document.getElementById('pending-days-sidebar');
   const listContainer = document.getElementById('pending-days-list');
   const boardCol = document.getElementById('tasks-board-column');
-  
   const mobileToggleBtn = document.getElementById('mobile-pending-toggle');
+  const sidebarColumn = document.getElementById('tasks-sidebar-column');
+  
   if (sidebarContainer && listContainer) {
     if (uniquePendingDates.length > 0) {
       // Toggle button setup for mobile view
       if (mobileToggleBtn) {
         mobileToggleBtn.classList.remove('hidden');
         const count = uniquePendingDates.length;
-        document.getElementById('mobile-pending-toggle-text').textContent = showPendingMobile 
-          ? `Hide Pending Past Tasks (${count})` 
-          : `Show Pending Past Tasks (${count})`;
+        document.getElementById('mobile-pending-toggle-text').textContent = `Show Pending Past Tasks (${count})`;
         
         const toggleIcon = document.getElementById('mobile-pending-toggle-icon');
         if (toggleIcon) {
-          toggleIcon.style.transform = showPendingMobile ? 'rotate(180deg)' : 'rotate(0deg)';
+          toggleIcon.style.transform = 'rotate(0deg)';
         }
       }
 
-      // Sidebar visibility is flex on desktop, but toggled on mobile based on showPendingMobile
-      const baseSidebarClass = "glass-card rounded-2xl p-4 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 border-l-4 border-l-amber-500 h-auto max-h-[320px] lg:max-h-full flex flex-col overflow-hidden mb-16 lg:mb-0 relative z-10";
-      if (showPendingMobile) {
-        sidebarContainer.className = `${baseSidebarClass} flex`;
-      } else {
-        sidebarContainer.className = `${baseSidebarClass} hidden lg:flex`;
+      // Sidebar column is visible
+      if (sidebarColumn) {
+        sidebarColumn.className = "lg:col-span-4 space-y-4 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden shrink-0";
       }
 
+      // Sidebar visibility is flex on desktop, but hidden on mobile
+      const baseSidebarClass = "glass-card rounded-2xl p-4 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 border-l-4 border-l-amber-500 h-auto max-h-[320px] lg:max-h-full flex flex-col overflow-hidden mb-16 lg:mb-0 relative z-10";
+      sidebarContainer.className = `${baseSidebarClass} hidden lg:flex`;
+
       if (boardCol) {
-        boardCol.className = "lg:col-span-8 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10 shrink-0";
+        boardCol.className = "lg:col-span-8 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10 shrink-0";
       }
-      listContainer.innerHTML = uniquePendingDates.map(dateStr => {
+
+      const listHTML = uniquePendingDates.map(dateStr => {
         const tasksForDate = pendingPastTasks.filter(t => t.targetDate === dateStr);
         const count = tasksForDate.length;
         const parts = dateStr.split('-');
@@ -823,15 +824,28 @@ function renderTasks() {
           </div>
         `;
       }).join('');
+      
+      listContainer.innerHTML = listHTML;
+      const listContainerMobile = document.getElementById('pending-days-list-mobile');
+      if (listContainerMobile) {
+        listContainerMobile.innerHTML = listHTML;
+      }
     } else {
       if (mobileToggleBtn) {
         mobileToggleBtn.classList.add('hidden');
       }
       sidebarContainer.className = "hidden";
+      if (sidebarColumn) {
+        sidebarColumn.className = "hidden";
+      }
       if (boardCol) {
-        boardCol.className = "lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10 shrink-0";
+        boardCol.className = "lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10 shrink-0";
       }
       listContainer.innerHTML = '';
+      const listContainerMobile = document.getElementById('pending-days-list-mobile');
+      if (listContainerMobile) {
+        listContainerMobile.innerHTML = '';
+      }
     }
   }
 
@@ -962,6 +976,7 @@ function openDatePicker() {
 
 function setTaskDate(val) {
   activeTaskDate = val;
+  closePendingTasksSheet();
   renderAll();
 }
 
@@ -1087,8 +1102,35 @@ function toggleSidebarAccordion(dateStr) {
 }
 
 function toggleMobilePendingTasks() {
-  showPendingMobile = !showPendingMobile;
-  renderAll();
+  openPendingTasksSheet();
+}
+
+function openPendingTasksSheet() {
+  const sheet = document.getElementById('pending-tasks-sheet');
+  if (sheet) {
+    sheet.classList.remove('hidden');
+    const content = sheet.querySelector('.animate-slideUp');
+    if (content) {
+      content.style.transform = 'translateY(100%)';
+      setTimeout(() => {
+        content.style.transform = 'translateY(0)';
+      }, 10);
+    }
+    safeCreateIcons();
+  }
+}
+
+function closePendingTasksSheet() {
+  const sheet = document.getElementById('pending-tasks-sheet');
+  if (sheet) {
+    const content = sheet.querySelector('.animate-slideUp');
+    if (content) {
+      content.style.transform = 'translateY(100%)';
+    }
+    setTimeout(() => {
+      sheet.classList.add('hidden');
+    }, 200);
+  }
 }
 
 function rescheduleSidebarTask(taskId) {
