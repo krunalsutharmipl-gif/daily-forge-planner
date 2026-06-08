@@ -182,3 +182,17 @@
   animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* ---- Mobile layout: body padding must equal exactly the nav bar height ---- */
+/* The bottom nav bar height is ~52px (py-1.5 * 2 + icon 16px + gap 4px + label ~10px + button py-1 * 2) */
+@media (max-width: 767px) {
+  body {
+    /* Override Tailwind pb-[52px]: use 52px as base, add device safe-area inset on top */
+    padding-bottom: calc(52px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* The fixed bottom nav itself also should account for safe-area on notched phones */
+  .mobile-bottom-nav {
+    padding-bottom: calc(0.375rem + env(safe-area-inset-bottom, 0px));
+  }
+}
