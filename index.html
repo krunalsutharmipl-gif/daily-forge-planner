@@ -770,19 +770,19 @@
             </div>
 
             <!-- Header Actions: Search & New Button -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 shrink-0">
+            <div class="flex flex-row items-center justify-between gap-2.5 mb-3 shrink-0 w-full">
               <!-- Search -->
-                <div class="relative max-w-xs flex-1 sm:w-64 font-sans">
-                  <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                  <input type="text" id="thought-search-input" oninput="searchThoughts(this.value)"
-                    placeholder="Search thoughts..."
-                    class="w-full text-xs pl-9 pr-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 font-semibold transition-all">
-                </div>
-                <!-- Write Button -->
-                <button onclick="openNewThoughtEditor()" class="bg-gradient-to-r from-violet-600 to-pink-500 hover:from-violet-500 hover:to-pink-400 text-white font-bold text-xs py-2 px-3 rounded-lg shadow-sm flex items-center gap-1.5 cursor-pointer transition-all shrink-0">
-                  <i data-lucide="plus-circle" class="w-4 h-4"></i> New Note
-                </button>
+              <div class="relative flex-1 sm:max-w-xs font-sans">
+                <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="thought-search-input" oninput="searchThoughts(this.value)"
+                  placeholder="Search thoughts..."
+                  class="w-full text-xs pl-9 pr-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 font-semibold transition-all">
               </div>
+              <!-- Write Button -->
+              <button onclick="openNewThoughtEditor()" class="bg-gradient-to-r from-violet-600 to-pink-500 hover:from-violet-500 hover:to-pink-400 text-white font-bold text-xs py-2 px-3 rounded-lg shadow-sm flex items-center gap-1.5 cursor-pointer transition-all shrink-0">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> New Note
+              </button>
+            </div>
 
             <!-- Category Filter Row -->
             <div class="flex flex-wrap gap-1.5 pb-3 border-b border-slate-100 dark:border-slate-800/80 mb-3 shrink-0">
