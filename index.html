@@ -79,8 +79,13 @@
           <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-1.5">Username</label>
           <div class="relative">
             <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-            <input type="text" id="login-username" required placeholder="Enter username..." class="w-full text-xs pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-slate-400 dark:focus:border-slate-650 dark:text-slate-100 font-sans font-semibold transition-all">
+            <input type="text" id="login-username" required placeholder="Enter username..."
+              oninput="validateUsernameField(this, 'login-username-feedback')"
+              autocomplete="username" spellcheck="false" autocapitalize="none"
+              class="w-full text-xs pl-10 pr-9 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-slate-400 dark:focus:border-slate-650 dark:text-slate-100 font-sans font-semibold transition-all">
+            <span id="login-username-icon" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs hidden"></span>
           </div>
+          <p id="login-username-feedback" class="text-[10px] mt-1 font-semibold hidden"></p>
         </div>
         <div>
           <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-1.5">Password</label>
@@ -120,8 +125,13 @@
           <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-1.5">Username</label>
           <div class="relative">
             <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-            <input type="text" id="signup-username" required placeholder="Create unique username..." class="w-full text-xs pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-slate-400 dark:focus:border-slate-650 dark:text-slate-100 font-sans font-semibold transition-all">
+            <input type="text" id="signup-username" required placeholder="e.g. krunal_suthar.92"
+              oninput="validateUsernameField(this, 'signup-username-feedback')"
+              autocomplete="username" spellcheck="false" autocapitalize="none"
+              class="w-full text-xs pl-10 pr-9 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-slate-400 dark:focus:border-slate-650 dark:text-slate-100 font-sans font-semibold transition-all">
+            <span id="signup-username-icon" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs hidden"></span>
           </div>
+          <p id="signup-username-feedback" class="text-[10px] mt-1 font-semibold hidden"></p>
         </div>
         <div>
           <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-1.5">Password</label>

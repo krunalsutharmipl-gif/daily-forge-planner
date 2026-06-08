@@ -1898,6 +1898,104 @@ function toggleAuthTab(tab) {
   }
 }
 
+// ----------------------------------------------------
+// USERNAME VALIDATION — Instagram-style rules
+// Letters (a-z), numbers (0-9), underscores (_), periods (.)
+// • Auto-lowercased as you type
+// • 1–30 characters
+// • Cannot start or end with a period
+// • Cannot have two consecutive periods (..)
+// ----------------------------------------------------
+
+/**
+ * Pure validator — returns { valid: boolean, message: string }
+ */
+function isValidUsername(username) {
+  if (!username || username.length === 0) {
+    return { valid: false, message: 'Username is required.' };
+  }
+  if (username.length > 30) {
+    return { valid: false, message: 'Username must be 30 characters or fewer.' };
+  }
+  if (username.length < 3) {
+    return { valid: false, message: 'Username must be at least 3 characters.' };
+  }
+  if (!/^[a-z0-9._]+$/.test(username)) {
+    return { valid: false, message: 'Only letters, numbers, underscores and periods are allowed.' };
+  }
+  if (username.startsWith('.') || username.endsWith('.')) {
+    return { valid: false, message: 'Username cannot start or end with a period.' };
+  }
+  if (username.includes('..')) {
+    return { valid: false, message: 'Username cannot contain two consecutive periods.' };
+  }
+  return { valid: true, message: '✓ Username looks good!' };
+}
+
+/**
+ * Live oninput handler — auto-lowercases, strips invalid chars, shows feedback
+ */
+function validateUsernameField(inputEl, feedbackId) {
+  // 1. Auto-lowercase and strip characters not allowed by Instagram rules
+  const pos = inputEl.selectionStart; // preserve cursor position
+  const cleaned = inputEl.value
+    .toLowerCase()
+    .replace(/[^a-z0-9._]/g, ''); // remove anything not in allowed set
+  if (inputEl.value !== cleaned) {
+    inputEl.value = cleaned;
+    try { inputEl.setSelectionRange(pos, pos); } catch (_) {}
+  }
+
+  const feedback = document.getElementById(feedbackId);
+  // Derive icon element id from feedback id
+  const iconId = feedbackId.replace('feedback', 'icon');
+  const iconEl = document.getElementById(iconId);
+
+  if (!feedback) return;
+
+  const val = inputEl.value;
+
+  if (val.length === 0) {
+    // Empty — reset to neutral
+    feedback.classList.add('hidden');
+    inputEl.classList.remove('border-emerald-500', 'border-rose-500');
+    if (iconEl) iconEl.classList.add('hidden');
+    return;
+  }
+
+  const { valid, message } = isValidUsername(val);
+
+  // Update feedback text + color
+  feedback.textContent = message;
+  feedback.classList.remove('hidden', 'text-emerald-600', 'text-rose-600', 'dark:text-emerald-400', 'dark:text-rose-400');
+
+  // Update input border color
+  inputEl.classList.remove('border-emerald-500', 'border-rose-500', 'dark:border-emerald-600', 'dark:border-rose-600');
+
+  // Update icon
+  if (iconEl) {
+    iconEl.classList.remove('hidden', 'text-emerald-500', 'text-rose-500');
+  }
+
+  if (valid) {
+    feedback.classList.add('text-emerald-600', 'dark:text-emerald-400');
+    inputEl.classList.add('border-emerald-500', 'dark:border-emerald-600');
+    if (iconEl) {
+      iconEl.textContent = '✓';
+      iconEl.classList.add('text-emerald-500');
+      iconEl.classList.remove('hidden');
+    }
+  } else {
+    feedback.classList.add('text-rose-600', 'dark:text-rose-400');
+    inputEl.classList.add('border-rose-500', 'dark:border-rose-600');
+    if (iconEl) {
+      iconEl.textContent = '✗';
+      iconEl.classList.add('text-rose-500');
+      iconEl.classList.remove('hidden');
+    }
+  }
+}
+
 function submitSignUp(e) {
   e.preventDefault();
   const firstName = document.getElementById('signup-firstname').value.trim();
@@ -1907,6 +2005,18 @@ function submitSignUp(e) {
   
   if (!firstName || !lastName || !username || !password) {
     showToast("⚠️ Validation Error", "All fields are required.", "warning");
+    return;
+  }
+
+  // Instagram-style username validation
+  const { valid, message } = isValidUsername(username);
+  if (!valid) {
+    showToast("⚠️ Invalid Username", message, "warning");
+    const inputEl = document.getElementById('signup-username');
+    if (inputEl) {
+      inputEl.classList.add('border-rose-500');
+      inputEl.focus();
+    }
     return;
   }
   
@@ -1959,6 +2069,18 @@ function submitLogin(e) {
   
   if (!username || !password) {
     showToast("⚠️ Credentials Missing", "Please enter username and password.", "warning");
+    return;
+  }
+
+  // Instagram-style username validation on login too
+  const { valid, message } = isValidUsername(username);
+  if (!valid) {
+    showToast("⚠️ Invalid Username", message, "warning");
+    const inputEl = document.getElementById('login-username');
+    if (inputEl) {
+      inputEl.classList.add('border-rose-500');
+      inputEl.focus();
+    }
     return;
   }
   
