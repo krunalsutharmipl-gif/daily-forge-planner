@@ -757,7 +757,7 @@ function renderTasks() {
       sidebarContainer.className = `${baseSidebarClass} hidden lg:flex`;
 
       if (boardCol) {
-        boardCol.className = "lg:col-span-8 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10 shrink-0";
+        boardCol.className = "pwa-section-card lg:col-span-8 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10 shrink-0";
       }
 
       const listHTML = uniquePendingDates.map(dateStr => {
@@ -839,7 +839,7 @@ function renderTasks() {
         sidebarColumn.className = "hidden";
       }
       if (boardCol) {
-        boardCol.className = "lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10 shrink-0";
+        boardCol.className = "pwa-section-card lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10 shrink-0";
       }
       listContainer.innerHTML = '';
       const listContainerMobile = document.getElementById('pending-days-list-mobile');

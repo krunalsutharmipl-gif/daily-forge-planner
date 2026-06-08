@@ -535,11 +535,11 @@
         <!-- Main Layout Grid -->
         <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-stretch w-full flex-1 overflow-hidden min-h-0 pb-0 lg:pb-0">
           <!-- Left Column: Tasks Board -->
-          <div id="tasks-board-column" class="lg:col-span-8 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10 shrink-0">
+          <div id="tasks-board-column" class="pwa-section-card lg:col-span-8 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10 shrink-0">
 
             <!-- Date Navigation Bar -->
             <div
-              class="flex items-start justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5 mb-5 font-sans shrink-0">
+              class="pwa-section-header flex items-start justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5 mb-5 font-sans shrink-0">
               <!-- Left Side: Buttons Group -->
               <div class="flex items-center gap-2">
                 <button onclick="navigateDay(-1)" type="button"
@@ -641,12 +641,12 @@
         <!-- Main Layout Grid -->
         <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-stretch w-full flex-1 overflow-hidden min-h-0 pb-0 lg:pb-0">
           <!-- Main Column: Goals Card -->
-          <div
-            class="lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-emerald-500 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10">
+          <div id="goals-board-column"
+            class="pwa-section-card lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-emerald-500 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10">
 
             <!-- Overview stats row -->
             <div
-              class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+              class="pwa-section-header flex flex-col md:flex-row md:items-center justify-between gap-6 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
               <div>
                 <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 font-display">
                   <i data-lucide="target" class="w-4 h-4 text-emerald-500"></i>
@@ -723,10 +723,10 @@
         <!-- Main Layout Grid -->
         <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-stretch w-full flex-1 overflow-hidden min-h-0 pb-0 lg:pb-0">
           <!-- Main Column: Thoughts Card -->
-          <div
-            class="lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-violet-600 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10">
+          <div id="thoughts-board-column"
+            class="pwa-section-card lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-violet-600 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10">
 
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 font-sans shrink-0">
+            <div class="pwa-section-header flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 font-sans shrink-0">
               <div>
                 <h2
                   class="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2 font-display">

@@ -183,16 +183,171 @@
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ---- Mobile layout: body padding must equal exactly the nav bar height ---- */
-/* The bottom nav bar height is ~52px (py-1.5 * 2 + icon 16px + gap 4px + label ~10px + button py-1 * 2) */
-@media (max-width: 767px) {
-  body {
-    /* Override Tailwind pb-[52px]: use 52px as base, add device safe-area inset on top */
+/* ================================================================
+   OPTION C — PWA STANDALONE NATIVE MODE
+   Applies ONLY when app is installed as PWA (display-mode: standalone).
+   Browser users see the full premium glass card design — zero change.
+   ================================================================ */
+
+@media (display-mode: standalone) and (max-width: 767px) {
+
+  /* ── 1. Strip main container padding for edge-to-edge layout ── */
+  main {
+    padding-top: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
     padding-bottom: calc(52px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
-  /* The fixed bottom nav itself also should account for safe-area on notched phones */
-  .mobile-bottom-nav {
-    padding-bottom: calc(0.375rem + env(safe-area-inset-bottom, 0px));
+  /* ── 2. Remove section content wrappers' margins/max-width ── */
+  #content-tasks,
+  #content-goals,
+  #content-thoughts {
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* ── 3. Remove the outer grid gap ── */
+  #content-tasks > div,
+  #content-goals > div,
+  #content-thoughts > div {
+    gap: 0 !important;
+  }
+
+  /* ── 4. Strip the outer glass-card: no bg, no border, no rounding, no padding ── */
+  .pwa-section-card {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* ── 5. Add back padding only to the section header row ── */
+  .pwa-section-header {
+    padding: 0.75rem 1rem 0.75rem 1rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* ── 6. Task input form — add side padding ── */
+  #tasks-board-column form,
+  #goals-board-column form {
+    margin-left: 0.75rem !important;
+    margin-right: 0.75rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  /* ── 7. Goals insert form background subtle strip ── */
+  #goals-board-column form {
+    border-radius: 0.75rem !important;
+  }
+
+  /* ── 8. Pending tasks toggle button — add side margin ── */
+  #mobile-pending-toggle {
+    margin-left: 0.75rem !important;
+    margin-right: 0.75rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  /* ── 9. Filter rows — add side padding ── */
+  #content-thoughts .pwa-section-card > div:nth-child(3),
+  #content-goals .pwa-section-card > div:nth-child(3) {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  /* ── 10. Search + action row in Thoughts — add side padding ── */
+  #thoughts-board-column > div:nth-child(2),
+  #thoughts-board-column > div:nth-child(3) {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  /* ── 11. Category filter row in Thoughts ── */
+  #thoughts-board-column > div:nth-child(4) {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  /* ── 12. Goal/Task filters row ── */
+  #goals-board-column > div:nth-child(3) {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* ── 13. Flat native rows: Task item cards → no bg, no border, hairline divider ── */
+  #tasks-list-container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #tasks-list-container .task-card-wrapper {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.15) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0.625rem 1rem !important;
+  }
+
+  #tasks-list-container .task-card-wrapper:last-of-type {
+    border-bottom: none !important;
+  }
+
+  /* ── 14. Flat native rows: Goal item cards ── */
+  #goals-list-container {
+    padding-right: 0 !important;
+  }
+
+  #goals-list-container > div {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.15) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0.625rem 1rem !important;
+  }
+
+  #goals-list-container > div:last-of-type {
+    border-bottom: none !important;
+  }
+
+  /* ── 15. Flat native rows: Thought item cards ── */
+  #thoughts-list-container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #thoughts-list-container .thought-card {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.15) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0.625rem 1rem !important;
+    transform: none !important;  /* disable hover scale on touch devices */
+  }
+
+  #thoughts-list-container .thought-card:hover {
+    transform: none !important;
+  }
+
+  #thoughts-list-container .thought-card:last-of-type {
+    border-bottom: none !important;
+  }
+
+  /* ── 16. Dark mode hairline dividers ── */
+  .dark #tasks-list-container .task-card-wrapper {
+    border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+  }
+  .dark #goals-list-container > div {
+    border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+  }
+  .dark #thoughts-list-container .thought-card {
+    border-bottom-color: rgba(255, 255, 255, 0.06) !important;
   }
 }
