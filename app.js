@@ -100,8 +100,10 @@ function toLocalISODate(d) {
 // Filters & Navigation Selectors
 let activeTaskDate = toLocalISODate(new Date());
 let activeGoalFilter = 'all';
+let activeThoughtCategory = 'all';
 let thoughtSearchQuery = '';
 let editingThoughtId = null;
+let editorIsPinned = false;
 let openSidebarDates = new Set();
 let showPendingMobile = false;
 
@@ -130,6 +132,16 @@ window.addEventListener('DOMContentLoaded', () => {
   // Update Clock initially and launch loop
   updateClock();
   setInterval(updateClock, 1000);
+
+  // Set up Thought Editor live count listeners
+  const editorTitle = document.getElementById('editor-thought-title');
+  const editorContent = document.getElementById('editor-thought-content');
+  if (editorTitle) {
+    editorTitle.addEventListener('input', updateEditorCounts);
+  }
+  if (editorContent) {
+    editorContent.addEventListener('input', updateEditorCounts);
+  }
 
   // Close task dropdown menus when clicking outside
   document.addEventListener('click', () => {
@@ -1372,31 +1384,50 @@ function deleteGoal(goalId) {
 // 4. THOUGHTS LOGGER MODULE
 // ----------------------------------------------------
 function renderThoughts() {
+  updateCategoryFiltersUI();
+
   const container = document.getElementById('thoughts-list-container');
-  const filtered = thoughts.filter(th => 
-    th.content.toLowerCase().includes(thoughtSearchQuery.toLowerCase())
-  );
+  if (!container) return;
+
+  const filtered = thoughts.filter(th => {
+    const searchMatch = !thoughtSearchQuery || 
+      (th.title && th.title.toLowerCase().includes(thoughtSearchQuery.toLowerCase())) ||
+      (th.content && th.content.toLowerCase().includes(thoughtSearchQuery.toLowerCase()));
+    const categoryMatch = activeThoughtCategory === 'all' || th.category === activeThoughtCategory;
+    return searchMatch && categoryMatch;
+  });
+
+  filtered.sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    const timeA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+    const timeB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+    return timeB - timeA;
+  });
 
   if (filtered.length === 0) {
     container.innerHTML = `
-      <div class="flex flex-col items-center justify-center py-12 text-center text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-900/30 font-semibold">
+      <div class="flex flex-col items-center justify-center py-12 text-center text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-900/30 font-semibold w-full">
         <i data-lucide="book-open" class="w-8 h-8 opacity-20 mb-2 text-slate-500"></i>
-        <p class="text-xs font-bold text-slate-700 dark:text-slate-300">${thoughtSearchQuery ? 'No matching logs' : 'Your stream of thoughts is empty'}</p>
-        <p class="text-[10px] text-slate-400 mt-1 max-w-xs px-4 font-normal">Jot down reflections, ideas, learning logs, or quick notes.</p>
+        <p class="text-xs font-bold text-slate-700 dark:text-slate-300">
+          ${thoughtSearchQuery ? 'No matching thoughts found' : 'No notes in this category yet'}
+        </p>
+        <p class="text-[10px] text-slate-400 mt-1 max-w-xs px-4 font-normal">
+          ${thoughtSearchQuery ? 'Try adjusting your search keywords.' : 'Tap "New Note" to jot down reflections, ideas, or reminders.'}
+        </p>
       </div>
     `;
     return;
   }
 
   container.innerHTML = filtered.map(th => {
-    // Categorize selection
-    const category = th.category || 'idea';
-    let categoryClass = "thought-card-idea";
-    let categoryLabel = "💡 Idea";
+    const category = th.category || 'note';
+    let categoryClass = "thought-card-note";
+    let categoryLabel = "📌 Note";
     
-    if (category === 'note') {
-      categoryClass = "thought-card-note";
-      categoryLabel = "📌 Note";
+    if (category === 'idea') {
+      categoryClass = "thought-card-idea";
+      categoryLabel = "💡 Idea";
     } else if (category === 'reflection') {
       categoryClass = "thought-card-reflection";
       categoryLabel = "🧠 Reflection";
@@ -1405,56 +1436,76 @@ function renderThoughts() {
       categoryLabel = "📚 Learning";
     }
 
-    return `
-      <div class="thought-card ${categoryClass} py-2.5 px-3.5 rounded-xl flex flex-col gap-2">
-        ${editingThoughtId === th.id ? `
-          <div class="flex flex-col gap-2">
-            <textarea id="edit-thought-textarea-${th.id}" rows="2" class="w-full text-xs p-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-400 dark:focus:border-slate-700 dark:text-slate-100 resize-none font-sans font-semibold">${th.content}</textarea>
-            
-            <div class="flex justify-between items-center gap-2">
-              <div class="flex items-center gap-1.5">
-                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider font-mono">Category:</span>
-                <select id="edit-thought-category-${th.id}" class="text-[10px] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-md p-1 focus:outline-none dark:text-slate-200 font-bold cursor-pointer">
-                  <option value="note" ${category === 'note' ? 'selected' : ''}>📌 Note</option>
-                  <option value="idea" ${category === 'idea' ? 'selected' : ''}>💡 Idea</option>
-                  <option value="reflection" ${category === 'reflection' ? 'selected' : ''}>🧠 Reflection</option>
-                  <option value="learning" ${category === 'learning' ? 'selected' : ''}>📚 Learning</option>
-                </select>
-              </div>
-              
-              <div class="flex gap-2">
-                <button onclick="cancelThoughtEdit()" class="p-1 px-2.5 rounded-lg border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 font-bold cursor-pointer">
-                  <i data-lucide="x" class="w-3.5 h-3.5"></i>
-                </button>
-                <button onclick="saveThoughtEdit('${th.id}')" class="p-1 px-3 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-lg text-[11px] font-bold flex items-center gap-1 cursor-pointer">
-                  <i data-lucide="check" class="w-3.5 h-3.5"></i> Save
-                </button>
-              </div>
-            </div>
-          </div>
-        ` : `
-          <p class="text-slate-800 dark:text-slate-100 text-xs whitespace-pre-wrap leading-relaxed font-sans font-medium">${th.content}</p>
-          
-          <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-            <div class="flex flex-wrap items-center gap-2 text-[10px] text-slate-400 font-mono font-semibold">
-              <span class="font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">${categoryLabel}</span>
-              <span class="flex items-center gap-1">
-                <i data-lucide="calendar" class="w-3 h-3 text-slate-400"></i>
-                ${new Date(th.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-              </span>
-              ${th.createdAt !== th.updatedAt ? '<span class="italic opacity-70">(edited)</span>' : ''}
-            </div>
+    let displayTitle = th.title ? th.title.trim() : "";
+    let displaySnippet = th.content ? th.content.trim() : "";
+    
+    if (!displayTitle) {
+      if (displaySnippet) {
+        const lines = displaySnippet.split('\n');
+        displayTitle = lines[0];
+        if (displayTitle.length > 40) {
+          displayTitle = displayTitle.substring(0, 40) + '...';
+        }
+        displaySnippet = lines.slice(1).join('\n').trim();
+      } else {
+        displayTitle = "Untitled Note";
+      }
+    }
 
-            <div class="flex items-center gap-1">
-              <button onclick="startThoughtEdit('${th.id}')" class="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all cursor-pointer" title="Edit thought">
-                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-              </button>
-              <button onclick="deleteThought('${th.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all cursor-pointer" title="Delete thought">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-              </button>
-            </div>
+    let previewText = displaySnippet;
+    if (previewText.length > 80) {
+      previewText = previewText.substring(0, 80) + '...';
+    }
+    if (!previewText) {
+      previewText = "Empty note content";
+    }
+
+    const dateObj = new Date(th.updatedAt || th.createdAt || new Date());
+    const formattedDate = dateObj.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+
+    return `
+      <div onclick="openThoughtEditor('${th.id}')" 
+           class="thought-card ${categoryClass} p-3.5 rounded-xl flex flex-col gap-2 hover:scale-[1.01] transition-all duration-200 cursor-pointer premium-transition relative select-none">
+        
+        <div class="flex items-start justify-between gap-3">
+          <h3 class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 tracking-tight truncate flex-1 font-sans">
+            ${displayTitle}
+          </h3>
+          <div class="flex items-center gap-1 shrink-0">
+            <button onclick="togglePinThought('${th.id}', event)" 
+                    class="p-1 rounded text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer flex items-center justify-center" 
+                    title="${th.pinned ? 'Unpin' : 'Pin'}">
+              <i data-lucide="pin" class="w-3.5 h-3.5 ${th.pinned ? 'text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400' : ''}"></i>
+            </button>
+            <button onclick="deleteThought('${th.id}', event)" 
+                    class="p-1 rounded text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer flex items-center justify-center" 
+                    title="Delete Note">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
           </div>
-        `}
+        </div>
+
+        <p class="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed font-sans font-medium line-clamp-2 pr-2">
+          ${previewText}
+        </p>
+
+        <div class="flex items-center justify-between mt-1 pt-1.5 border-t border-slate-100 dark:border-slate-800/80">
+          <div class="flex flex-wrap items-center gap-2 text-[10px] text-slate-400 font-mono font-semibold">
+            <span class="font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+              ${categoryLabel}
+            </span>
+            <span class="flex items-center gap-1">
+              <i data-lucide="calendar" class="w-3 h-3"></i>
+              ${formattedDate}
+            </span>
+            ${th.createdAt !== th.updatedAt ? '<span class="italic opacity-70">(edited)</span>' : ''}
+          </div>
+        </div>
+
       </div>
     `;
   }).join('') + '<div class="h-16 shrink-0"></div>';
@@ -1465,73 +1516,201 @@ function searchThoughts(val) {
   renderAll();
 }
 
-function addThought(e) {
-  e.preventDefault();
-  const input = document.getElementById('new-thought-input');
-  const categorySelect = document.getElementById('new-thought-category');
-  
-  const content = input.value.trim();
-  const category = categorySelect ? categorySelect.value : 'idea';
-  
-  if (!content) return;
-
-  const newTh = {
-    id: Math.random().toString(36).substr(2, 9),
-    content,
-    category,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-  thoughts.push(newTh);
-  input.value = '';
-  
-  showToast("💭 Thought Logged", "Logged a reflection note to your timeline.", "success");
-  pushNotificationLog("💭 Thought Logged", "Logged a reflection note to your timeline.");
-  saveState();
-
-  const container = document.getElementById('thoughts-list-container');
-  if (container) {
-    setTimeout(() => {
-      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-    }, 50);
-  }
-}
-
-function startThoughtEdit(thId) {
-  editingThoughtId = thId;
+function filterThoughtsByCategory(category) {
+  activeThoughtCategory = category;
   renderAll();
 }
 
-function cancelThoughtEdit() {
+function openNewThoughtEditor() {
   editingThoughtId = null;
-  renderAll();
+  editorIsPinned = false;
+
+  document.getElementById('editor-header-mode').textContent = "New Note";
+  document.getElementById('editor-thought-title').value = "";
+  document.getElementById('editor-thought-content').value = "";
+  document.getElementById('editor-thought-category').value = "note";
+  document.getElementById('editor-time-info').textContent = "";
+
+  updateEditorPinUI();
+  updateEditorCounts();
+
+  const overlay = document.getElementById('thought-editor-overlay');
+  overlay.classList.remove('hidden');
+  document.getElementById('editor-thought-title').focus();
 }
 
-function saveThoughtEdit(thId) {
-  const textarea = document.getElementById(`edit-thought-textarea-${thId}`);
-  const categorySelect = document.getElementById(`edit-thought-category-${thId}`);
-  
-  const text = textarea.value.trim();
-  const category = categorySelect ? categorySelect.value : 'idea';
-  
-  if (!text) return;
-
+function openThoughtEditor(thId) {
   const th = thoughts.find(t => t.id === thId);
   if (!th) return;
-  th.content = text;
-  th.category = category;
-  th.updatedAt = new Date().toISOString();
+
+  editingThoughtId = thId;
+  editorIsPinned = !!th.pinned;
+
+  document.getElementById('editor-header-mode').textContent = "Edit Note";
+  document.getElementById('editor-thought-title').value = th.title || "";
+  document.getElementById('editor-thought-content').value = th.content || "";
+  document.getElementById('editor-thought-category').value = th.category || "note";
+
+  const savedDate = new Date(th.updatedAt || th.createdAt || new Date());
+  const formattedTime = savedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const formattedDate = savedDate.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  document.getElementById('editor-time-info').textContent = `Saved ${formattedDate} at ${formattedTime}`;
+
+  updateEditorPinUI();
+  updateEditorCounts();
+
+  const overlay = document.getElementById('thought-editor-overlay');
+  overlay.classList.remove('hidden');
+}
+
+function closeThoughtEditor() {
+  const overlay = document.getElementById('thought-editor-overlay');
+  overlay.classList.add('hidden');
   editingThoughtId = null;
-  showToast("✏️ Note Updated", "Your thought log has been updated.", "success");
+}
+
+function toggleEditorPin() {
+  editorIsPinned = !editorIsPinned;
+  updateEditorPinUI();
+}
+
+function updateEditorPinUI() {
+  const btn = document.getElementById('editor-pin-btn');
+  if (!btn) return;
+  const icon = btn.querySelector('i') || btn.querySelector('svg');
+  if (editorIsPinned) {
+    btn.className = "p-2 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg text-amber-500 dark:text-amber-400 transition cursor-pointer flex items-center justify-center";
+    btn.title = "Unpin Thought";
+    if (icon) {
+      icon.className = "w-4 h-4 text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400";
+    }
+  } else {
+    btn.className = "p-2 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition cursor-pointer flex items-center justify-center";
+    btn.title = "Pin Thought";
+    if (icon) {
+      icon.className = "w-4 h-4 text-slate-400";
+    }
+  }
+  safeCreateIcons();
+}
+
+function updateEditorCounts() {
+  const content = document.getElementById('editor-thought-content')?.value || '';
+  const charCount = content.length;
+  const words = content.trim().split(/\s+/).filter(w => w.length > 0);
+  const wordCount = words.length;
+
+  const charEl = document.getElementById('editor-char-count');
+  const wordEl = document.getElementById('editor-word-count');
+
+  if (charEl) charEl.textContent = `${charCount} character${charCount === 1 ? '' : 's'}`;
+  if (wordEl) wordEl.textContent = `${wordCount} word${wordCount === 1 ? '' : 's'}`;
+}
+
+function saveThoughtFromEditor() {
+  const title = document.getElementById('editor-thought-title').value.trim();
+  const content = document.getElementById('editor-thought-content').value.trim();
+  const category = document.getElementById('editor-thought-category').value;
+
+  if (!title && !content) {
+    showToast("⚠️ Empty Note", "Cannot save note without title or content.", "warning");
+    return;
+  }
+
+  const now = new Date().toISOString();
+
+  if (editingThoughtId === null) {
+    // Add new thought
+    const newTh = {
+      id: Math.random().toString(36).substr(2, 9),
+      title: title,
+      content: content,
+      category: category,
+      pinned: editorIsPinned,
+      createdAt: now,
+      updatedAt: now
+    };
+    thoughts.push(newTh);
+    showToast("💭 Note Created", "Saved new note to timeline.", "success");
+    pushNotificationLog("💭 Note Created", `Saved note: "${title || content.substring(0, 20)}..."`);
+  } else {
+    // Edit existing thought
+    const th = thoughts.find(t => t.id === editingThoughtId);
+    if (th) {
+      th.title = title;
+      th.content = content;
+      th.category = category;
+      th.pinned = editorIsPinned;
+      th.updatedAt = now;
+      showToast("✏️ Note Updated", "Your changes have been saved.", "success");
+    }
+  }
+
+  saveState();
+  closeThoughtEditor();
+}
+
+function togglePinThought(thId, event) {
+  if (event) event.stopPropagation();
+  const th = thoughts.find(t => t.id === thId);
+  if (!th) return;
+
+  th.pinned = !th.pinned;
+  th.updatedAt = new Date().toISOString();
+  
+  showToast(
+    th.pinned ? "📌 Note Pinned" : "📍 Note Unpinned",
+    th.pinned ? "This note will stay at the top of your timeline." : "Note returned to normal sorting.",
+    "info"
+  );
   saveState();
 }
 
-function deleteThought(thId) {
-  confirmCustom("Delete Thought", "Are you sure you want to delete this note log?").then(approved => {
+function deleteThought(thId, event) {
+  if (event) event.stopPropagation();
+  confirmCustom("Delete Note", "Are you sure you want to permanently delete this note?").then(approved => {
     if (approved) {
       thoughts = thoughts.filter(t => t.id !== thId);
-      showToast("🗑️ Thought Deleted", "Thought log has been removed.", "info");
+      showToast("🗑️ Note Deleted", "The note has been removed.", "info");
+      if (editingThoughtId === thId) {
+        closeThoughtEditor();
+      }
       saveState();
+    }
+  });
+}
+
+function updateCategoryFiltersUI() {
+  const counts = {
+    all: thoughts.length,
+    note: thoughts.filter(t => t.category === 'note').length,
+    idea: thoughts.filter(t => t.category === 'idea').length,
+    reflection: thoughts.filter(t => t.category === 'reflection').length,
+    learning: thoughts.filter(t => t.category === 'learning').length
+  };
+
+  const tabs = [
+    { id: 'all', label: 'All' },
+    { id: 'note', label: '📌 Notes' },
+    { id: 'idea', label: '💡 Ideas' },
+    { id: 'reflection', label: '🧠 Reflections' },
+    { id: 'learning', label: '📚 Learnings' }
+  ];
+
+  tabs.forEach(tab => {
+    const btn = document.getElementById(`thought-filter-${tab.id}`);
+    if (!btn) return;
+
+    btn.innerHTML = `${tab.label} <span class="ml-1 px-1.5 py-0.5 text-[9px] rounded-full ${
+      activeThoughtCategory === tab.id 
+        ? 'bg-white/20 text-white dark:bg-slate-950/20 dark:text-slate-900' 
+        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+    }">${counts[tab.id]}</span>`;
+
+    if (activeThoughtCategory === tab.id) {
+      btn.className = "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm flex items-center gap-1";
+    } else {
+      btn.className = "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1";
     }
   });
 }

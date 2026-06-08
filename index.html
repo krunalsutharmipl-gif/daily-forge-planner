@@ -733,41 +733,40 @@
               </div>
 
               <!-- Search -->
-              <div class="relative max-w-xs w-full sm:w-64 font-sans">
-                <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                <input type="text" id="thought-search-input" oninput="searchThoughts(this.value)"
-                  placeholder="Search thoughts..."
-                  class="w-full text-xs pl-9 pr-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 font-semibold transition-all">
+              <!-- Header Actions: Search & New Button -->
+              <div class="flex items-center gap-3 w-full sm:w-auto shrink-0 justify-end">
+                <!-- Search -->
+                <div class="relative max-w-xs flex-1 sm:w-64 font-sans">
+                  <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                  <input type="text" id="thought-search-input" oninput="searchThoughts(this.value)"
+                    placeholder="Search thoughts..."
+                    class="w-full text-xs pl-9 pr-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 font-semibold transition-all">
+                </div>
+                <!-- Write Button -->
+                <button onclick="openNewThoughtEditor()" class="bg-gradient-to-r from-violet-600 to-pink-500 hover:from-violet-500 hover:to-pink-400 text-white font-bold text-xs py-2 px-3 rounded-lg shadow-sm flex items-center gap-1.5 cursor-pointer transition-all shrink-0">
+                  <i data-lucide="plus-circle" class="w-4 h-4"></i> New Note
+                </button>
               </div>
             </div>
 
-            <!-- Thought Creator Textarea Form -->
-            <form onsubmit="addThought(event)"
-              class="mb-4 font-sans bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0">
-              <textarea id="new-thought-input" rows="3" required
-                placeholder="What's on your mind right now? Capture ideas instantly..."
-                class="w-full text-xs p-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-700 dark:text-slate-100 resize-none leading-relaxed transition-all font-semibold"></textarea>
-
-              <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mt-3">
-                <!-- Category Selector Badge Button group -->
-                <div class="flex gap-2 w-full sm:w-auto">
-                  <label
-                    class="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono self-center mr-1">Category:</label>
-                  <select id="new-thought-category"
-                    class="text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-2 py-1 focus:outline-none dark:text-slate-200 font-bold cursor-pointer font-sans">
-                    <option value="note">📌 Note</option>
-                    <option value="idea" selected>💡 Idea</option>
-                    <option value="reflection">🧠 Reflection</option>
-                    <option value="learning">📚 Learning</option>
-                  </select>
-                </div>
-
-                <button type="submit"
-                  class="w-full sm:w-auto bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs py-2 px-4 rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 transition cursor-pointer shadow-sm">
-                  Log Thought
-                </button>
-              </div>
-            </form>
+            <!-- Category Filter Row -->
+            <div class="flex flex-wrap gap-1.5 pb-3 border-b border-slate-100 dark:border-slate-800/80 mb-3 shrink-0">
+              <button id="thought-filter-all" onclick="filterThoughtsByCategory('all')" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm">
+                All
+              </button>
+              <button id="thought-filter-note" onclick="filterThoughtsByCategory('note')" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                📌 Notes
+              </button>
+              <button id="thought-filter-idea" onclick="filterThoughtsByCategory('idea')" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                💡 Ideas
+              </button>
+              <button id="thought-filter-reflection" onclick="filterThoughtsByCategory('reflection')" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                🧠 Reflections
+              </button>
+              <button id="thought-filter-learning" onclick="filterThoughtsByCategory('learning')" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                📚 Learnings
+              </button>
+            </div>
 
             <!-- Thoughts list Container -->
             <div id="thoughts-list-container" class="space-y-2 flex-1 overflow-y-auto pr-1 pb-4 font-sans">
@@ -854,6 +853,70 @@
       <button onclick="closeTaskActionsSheet()" class="w-full py-3 text-center text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition cursor-pointer mt-2">
         Cancel
       </button>
+    </div>
+  <!-- Fullscreen Thought Editor Overlay (Notes App Style) -->
+  <div id="thought-editor-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 hidden">
+    <!-- Backdrop blur layer -->
+    <div class="absolute inset-0 bg-slate-950/60 dark:bg-black/80 backdrop-blur-md transition-opacity duration-300" onclick="closeThoughtEditor()"></div>
+    
+    <!-- Modal container -->
+    <div class="bg-white/95 dark:bg-[#0c0a21]/95 backdrop-blur-lg border-t sm:border border-slate-200 dark:border-slate-800/80 rounded-t-3xl sm:rounded-3xl w-full h-[100dvh] sm:h-[80vh] max-w-2xl p-5 sm:p-6 shadow-2xl relative z-10 flex flex-col font-sans animate-slideUp sm:animate-fadeIn">
+      
+      <!-- Top header drag handle (mobile only) -->
+      <div class="w-12 h-1 bg-slate-200 dark:bg-slate-800 rounded-full mx-auto mb-4 sm:hidden shrink-0"></div>
+      
+      <!-- Top Control Bar -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800/80 mb-4 shrink-0 gap-4">
+        <div class="flex items-center gap-2">
+          <!-- Back/Close button -->
+          <button onclick="closeThoughtEditor()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition cursor-pointer flex items-center justify-center">
+            <i data-lucide="arrow-left" class="w-4.5 h-4.5"></i>
+          </button>
+          <span id="editor-header-mode" class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">Edit Note</span>
+        </div>
+
+        <!-- Pin & Category Actions -->
+        <div class="flex items-center gap-3">
+          <!-- Pinned State Toggle -->
+          <button id="editor-pin-btn" onclick="toggleEditorPin()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition cursor-pointer flex items-center justify-center" title="Pin Thought">
+            <i data-lucide="pin" class="w-4 h-4"></i>
+          </button>
+          <!-- Category Selector -->
+          <select id="editor-thought-category" class="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-transparent rounded-lg px-2.5 py-1.5 focus:outline-none dark:text-slate-200 font-bold cursor-pointer transition">
+            <option value="note">📌 Note</option>
+            <option value="idea">💡 Idea</option>
+            <option value="reflection">🧠 Reflection</option>
+            <option value="learning">📚 Learning</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Editor Content Area -->
+      <div class="flex-1 flex flex-col min-h-0 overflow-y-auto space-y-3.5 pr-1">
+        <!-- Title Input -->
+        <input type="text" id="editor-thought-title" placeholder="Title..." class="w-full bg-transparent text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none border-none tracking-tight font-display py-1">
+        
+        <!-- Content Editor Textarea -->
+        <textarea id="editor-thought-content" placeholder="Start typing thoughts here..." class="w-full flex-1 bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none border-none resize-none leading-relaxed font-medium min-h-[200px]"></textarea>
+      </div>
+
+      <!-- Bottom Status Bar -->
+      <div class="pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between shrink-0 gap-4 text-[10px] font-mono text-slate-400 dark:text-slate-500 font-semibold select-none">
+        <div class="flex items-center gap-2">
+          <span id="editor-char-count">0 characters</span>
+          <span class="opacity-40">|</span>
+          <span id="editor-word-count">0 words</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <!-- Last updated info -->
+          <span id="editor-time-info" class="hidden sm:inline">Saved just now</span>
+          <!-- Save & Close -->
+          <button onclick="saveThoughtFromEditor()" class="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-xs py-2 px-4 rounded-xl transition cursor-pointer shadow-md flex items-center gap-1.5">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i> Save & Close
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 
