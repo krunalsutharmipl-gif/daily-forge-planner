@@ -962,7 +962,7 @@ function renderTasks() {
         ${subtaskContainer}
       </div>
     `;
-  }).join('') + '<div class="h-28 shrink-0"></div>';
+  }).join('') + '<div class="h-4 shrink-0"></div>';
 }
 
 function openDatePicker() {
@@ -1355,7 +1355,7 @@ function renderGoals() {
         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
       </button>
     </div>
-  `).join('') + '<div class="h-16 shrink-0"></div>';
+  `).join('') + '<div class="h-4 shrink-0"></div>';
 }
 
 function setGoalFilter(filterId) {
@@ -1588,7 +1588,7 @@ function renderThoughts() {
 
       </div>
     `;
-  }).join('') + '<div class="h-16 shrink-0"></div>';
+  }).join('') + '<div class="h-4 shrink-0"></div>';
 }
 
 function searchThoughts(val) {

@@ -48,7 +48,7 @@
 </head>
 
 <body
-  class="h-screen bg-slate-50 dark:bg-[#070514] text-slate-800 dark:text-slate-200 font-sans transition-colors duration-200 relative flex flex-col overflow-hidden pb-20 md:pb-0">
+  class="h-screen bg-slate-50 dark:bg-[#070514] text-slate-800 dark:text-slate-200 font-sans transition-colors duration-200 relative flex flex-col overflow-hidden pb-16 md:pb-0">
 
   <!-- Premium Glassmorphism Auth Overlay (Login / Sign Up) -->
   <div id="auth-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 dark:bg-black/80 backdrop-blur-lg transition-all duration-300">
@@ -215,7 +215,7 @@
     <div id="tab-content" class="transition-all duration-205 flex-1 overflow-hidden flex flex-col w-full min-h-0">
 
       <!-- 1. Workspace (Dashboard) View -->
-      <div id="content-dashboard" class="flex-1 overflow-y-auto w-full pr-1 pb-4 lg:pb-0">
+      <div id="content-dashboard" class="flex-1 overflow-y-auto w-full pr-1 pb-0 lg:pb-0">
 
         <!-- Responsive Grid Wrapper to prevent hidden display overrides on desktop -->
         <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 items-stretch lg:items-start w-full">
@@ -533,7 +533,7 @@
       <div id="content-tasks" class="hidden max-w-5xl mx-auto space-y-3 sm:space-y-4 flex-1 flex flex-col overflow-hidden w-full min-h-0">
 
         <!-- Main Layout Grid -->
-        <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-stretch w-full flex-1 overflow-hidden min-h-0 pb-4 lg:pb-0">
+        <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-stretch w-full flex-1 overflow-hidden min-h-0 pb-0 lg:pb-0">
           <!-- Left Column: Tasks Board -->
           <div id="tasks-board-column" class="lg:col-span-8 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10 shrink-0">
 
@@ -598,6 +598,15 @@
               </div>
             </form>
 
+            <!-- Mobile Toggle Button for Pending Tasks -->
+            <button id="mobile-pending-toggle" onclick="toggleMobilePendingTasks()" class="w-full lg:hidden py-2.5 px-4 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 font-bold text-xs rounded-xl border border-amber-500/15 flex items-center justify-between transition cursor-pointer select-none hidden mb-4 shrink-0">
+              <span class="flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                <span id="mobile-pending-toggle-text">Show Pending Past Tasks (0)</span>
+              </span>
+              <i id="mobile-pending-toggle-icon" data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200"></i>
+            </button>
+
             <!-- Day-Wise Task List Board -->
             <div id="tasks-list-container" class="space-y-2 flex-1 overflow-y-auto pr-1 pb-4 font-sans">
               <!-- JS populates task details -->
@@ -607,14 +616,6 @@
 
           <!-- Right Column: Sidebar -->
           <div id="tasks-sidebar-column" class="lg:col-span-4 space-y-4 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden shrink-0">
-            <!-- Mobile Toggle Button for Pending Tasks -->
-            <button id="mobile-pending-toggle" onclick="toggleMobilePendingTasks()" class="w-full lg:hidden py-2.5 px-4 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 font-bold text-xs rounded-xl border border-amber-500/15 flex items-center justify-between transition cursor-pointer select-none hidden mb-2">
-              <span class="flex items-center gap-2">
-                <i data-lucide="alert-circle" class="w-4 h-4"></i>
-                <span id="mobile-pending-toggle-text">Show Pending Past Tasks (0)</span>
-              </span>
-              <i id="mobile-pending-toggle-icon" data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200"></i>
-            </button>
 
             <!-- Pending Days Sidebar Card -->
             <div id="pending-days-sidebar" class="glass-card rounded-2xl p-4 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 border-l-4 border-l-amber-500 hidden h-auto max-h-[320px] lg:max-h-full flex flex-col overflow-hidden mb-16 lg:mb-0 relative z-10">
@@ -638,7 +639,7 @@
       <div id="content-goals" class="hidden max-w-5xl mx-auto space-y-3 sm:space-y-4 flex-1 flex flex-col overflow-hidden w-full min-h-0">
 
         <!-- Main Layout Grid -->
-        <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-stretch w-full flex-1 overflow-hidden min-h-0 pb-4 lg:pb-0">
+        <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-stretch w-full flex-1 overflow-hidden min-h-0 pb-0 lg:pb-0">
           <!-- Main Column: Goals Card -->
           <div
             class="lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-emerald-500 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10">
@@ -720,7 +721,7 @@
       <div id="content-thoughts" class="hidden max-w-5xl mx-auto space-y-3 sm:space-y-4 flex-1 flex flex-col overflow-hidden w-full min-h-0">
 
         <!-- Main Layout Grid -->
-        <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-stretch w-full flex-1 overflow-hidden min-h-0 pb-4 lg:pb-0">
+        <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-stretch w-full flex-1 overflow-hidden min-h-0 pb-0 lg:pb-0">
           <!-- Main Column: Thoughts Card -->
           <div
             class="lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-violet-600 w-full h-full flex flex-col overflow-hidden min-h-0 relative z-10">
