@@ -1375,27 +1375,61 @@ function deleteGoal(goalId) {
     if (approved) {
       goals = goals.filter(g => g.id !== goalId);
       showToast("🗑️ Target Removed", "Focus target has been deleted.", "info");
-      saveState();
+saveState();
     }
   });
 }
 
-// ----------------------------------------------------
-// 4. THOUGHTS LOGGER MODULE
-// ----------------------------------------------------
+function getFilteredThoughtsList() {
+  return thoughts.filter(th => {
+    const thDate = th.date || (th.createdAt ? th.createdAt.split('T')[0] : activeTaskDate);
+    const dateMatch = thoughtSearchQuery ? true : (thDate === activeTaskDate);
+    
+    const searchMatch = !thoughtSearchQuery || 
+      (th.title && th.title.toLowerCase().includes(thoughtSearchQuery.toLowerCase())) ||
+      (th.content && th.content.toLowerCase().includes(thoughtSearchQuery.toLowerCase()));
+      
+    return dateMatch && searchMatch;
+  });
+}
+
 function renderThoughts() {
   updateCategoryFiltersUI();
+
+  // Sync Thoughts Date Navigation UI
+  const weekdayEl = document.getElementById('thought-date-weekday');
+  if (weekdayEl) {
+    weekdayEl.textContent = getWeekdayName(activeTaskDate);
+  }
+  const formattedEl = document.getElementById('thought-date-formatted');
+  if (formattedEl) {
+    formattedEl.textContent = getFormattedDateText(activeTaskDate);
+  }
+  const labelEl = document.getElementById('thought-date-picker-label');
+  if (labelEl) {
+    labelEl.textContent = getPickerLabelDate(activeTaskDate);
+  }
+  const pickerEl = document.getElementById('thought-date-picker');
+  if (pickerEl) {
+    pickerEl.value = activeTaskDate;
+  }
+
+  // Today button styling toggle
+  const todayBtn = document.getElementById('thought-today-btn');
+  if (todayBtn) {
+    const todayStr = toLocalISODate(new Date());
+    if (activeTaskDate === todayStr) {
+      todayBtn.className = "h-7 px-3 flex items-center justify-center bg-[#ff5252] hover:bg-[#ff3b3b] dark:bg-red-600 dark:hover:bg-red-500 text-white text-[10px] font-black uppercase tracking-wider rounded-md transition-all cursor-pointer shadow-sm border border-transparent";
+    } else {
+      todayBtn.className = "h-7 px-3 flex items-center justify-center bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all cursor-pointer shadow-2xs";
+    }
+  }
 
   const container = document.getElementById('thoughts-list-container');
   if (!container) return;
 
-  const filtered = thoughts.filter(th => {
-    const searchMatch = !thoughtSearchQuery || 
-      (th.title && th.title.toLowerCase().includes(thoughtSearchQuery.toLowerCase())) ||
-      (th.content && th.content.toLowerCase().includes(thoughtSearchQuery.toLowerCase()));
-    const categoryMatch = activeThoughtCategory === 'all' || th.category === activeThoughtCategory;
-    return searchMatch && categoryMatch;
-  });
+  const baseFiltered = getFilteredThoughtsList();
+  const filtered = baseFiltered.filter(th => activeThoughtCategory === 'all' || th.category === activeThoughtCategory);
 
   filtered.sort((a, b) => {
     if (a.pinned && !b.pinned) return -1;
@@ -1410,10 +1444,10 @@ function renderThoughts() {
       <div class="flex flex-col items-center justify-center py-12 text-center text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-900/30 font-semibold w-full">
         <i data-lucide="book-open" class="w-8 h-8 opacity-20 mb-2 text-slate-500"></i>
         <p class="text-xs font-bold text-slate-700 dark:text-slate-300">
-          ${thoughtSearchQuery ? 'No matching thoughts found' : 'No notes in this category yet'}
+          ${thoughtSearchQuery ? 'No matching thoughts found' : 'No notes on this day'}
         </p>
         <p class="text-[10px] text-slate-400 mt-1 max-w-xs px-4 font-normal">
-          ${thoughtSearchQuery ? 'Try adjusting your search keywords.' : 'Tap "New Note" to jot down reflections, ideas, or reminders.'}
+          ${thoughtSearchQuery ? 'Try adjusting your search keywords.' : 'Tap "New Note" to add an entry for this date.'}
         </p>
       </div>
     `;
@@ -1467,6 +1501,10 @@ function renderThoughts() {
       year: 'numeric'
     });
 
+    // If global search is active, show the thought's actual date on the card
+    const thDateStr = th.date || (th.createdAt ? th.createdAt.split('T')[0] : activeTaskDate);
+    const dateLabelStr = thoughtSearchQuery ? `${formattedDate} (${thDateStr})` : formattedDate;
+
     return `
       <div onclick="openThoughtEditor('${th.id}')" 
            class="thought-card ${categoryClass} p-3.5 rounded-xl flex flex-col gap-2 hover:scale-[1.01] transition-all duration-200 cursor-pointer premium-transition relative select-none">
@@ -1500,7 +1538,7 @@ function renderThoughts() {
             </span>
             <span class="flex items-center gap-1">
               <i data-lucide="calendar" class="w-3 h-3"></i>
-              ${formattedDate}
+              ${dateLabelStr}
             </span>
             ${th.createdAt !== th.updatedAt ? '<span class="italic opacity-70">(edited)</span>' : ''}
           </div>
@@ -1537,6 +1575,15 @@ function openNewThoughtEditor() {
   const overlay = document.getElementById('thought-editor-overlay');
   overlay.classList.remove('hidden');
   document.getElementById('editor-thought-title').focus();
+}
+
+function openThoughtDatePicker() {
+  const picker = document.getElementById('thought-date-picker');
+  if (picker && typeof picker.showPicker === 'function') {
+    picker.showPicker();
+  } else if (picker) {
+    picker.click();
+  }
 }
 
 function openThoughtEditor(thId) {
@@ -1627,6 +1674,7 @@ function saveThoughtFromEditor() {
       content: content,
       category: category,
       pinned: editorIsPinned,
+      date: activeTaskDate, // Set to active day for day-wise journaling
       createdAt: now,
       updatedAt: now
     };
@@ -1681,12 +1729,13 @@ function deleteThought(thId, event) {
 }
 
 function updateCategoryFiltersUI() {
+  const baseFiltered = getFilteredThoughtsList();
   const counts = {
-    all: thoughts.length,
-    note: thoughts.filter(t => t.category === 'note').length,
-    idea: thoughts.filter(t => t.category === 'idea').length,
-    reflection: thoughts.filter(t => t.category === 'reflection').length,
-    learning: thoughts.filter(t => t.category === 'learning').length
+    all: baseFiltered.length,
+    note: baseFiltered.filter(t => t.category === 'note').length,
+    idea: baseFiltered.filter(t => t.category === 'idea').length,
+    reflection: baseFiltered.filter(t => t.category === 'reflection').length,
+    learning: baseFiltered.filter(t => t.category === 'learning').length
   };
 
   const tabs = [
