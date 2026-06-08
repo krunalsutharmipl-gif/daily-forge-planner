@@ -215,11 +215,14 @@
     <div id="tab-content" class="transition-all duration-205 flex-1 overflow-hidden flex flex-col w-full min-h-0">
 
       <!-- 1. Workspace (Dashboard) View -->
-      <div id="content-dashboard" class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 items-stretch lg:items-start flex-1 overflow-y-auto w-full pr-1 pb-24 lg:pb-0">
+      <div id="content-dashboard" class="flex-1 overflow-y-auto w-full pr-1 pb-24 lg:pb-0">
 
-        <!-- Welcome Banner -->
-        <div
-          class="lg:col-span-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+        <!-- Responsive Grid Wrapper to prevent hidden display overrides on desktop -->
+        <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 items-stretch lg:items-start w-full">
+
+          <!-- Welcome Banner -->
+          <div
+            class="lg:col-span-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
           <div>
             <h2 id="greeting-title"
               class="text-xl sm:text-2xl font-bold tracking-tight font-display text-slate-900 dark:text-white">
@@ -519,6 +522,8 @@
             </div>
 
           </div>
+
+        </div>
 
         </div>
 
