@@ -924,10 +924,10 @@ function renderTasks() {
             
             <!-- Dropdown Menu -->
             <div id="task-menu-${task.id}" class="hidden absolute right-0 top-full mt-1 w-40 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-1.5 z-30 font-sans">
-              <button onclick="triggerAddSubtask('${task.id}', event)" type="button" class="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold flex items-center gap-2 cursor-pointer">
+              <button onclick="triggerAddSubtask('${task.id}', event)" type="button" class="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold flex items-center gap-2 cursor-pointer">
                 <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Add Subtask
               </button>
-              <button onclick="triggerChangeTaskDate('${task.id}', event)" type="button" class="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold flex items-center gap-2 cursor-pointer">
+              <button onclick="triggerChangeTaskDate('${task.id}', event)" type="button" class="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold flex items-center gap-2 cursor-pointer">
                 <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Change Date
               </button>
               <div class="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
