@@ -184,6 +184,17 @@
 }
 
 /* ================================================================
+   MOBILE — Remove main bottom padding on all mobile
+   Body pb-[52px] already reserves nav bar clearance. If main also
+   adds bottom padding, it creates a visible gray gap above the nav.
+   ================================================================ */
+@media (max-width: 767px) {
+  main {
+    padding-bottom: 0 !important;
+  }
+}
+
+/* ================================================================
    OPTION C — PWA STANDALONE NATIVE MODE
    Applies ONLY when app is installed as PWA (display-mode: standalone).
    Browser users see the full premium glass card design — zero change.
@@ -196,7 +207,7 @@
     padding-top: 0 !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
-    padding-bottom: calc(52px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: 0 !important; /* body pb-[52px] handles nav clearance */
   }
 
   /* ── 2. Remove section content wrappers' margins/max-width ── */
@@ -232,7 +243,7 @@
     margin-bottom: 0 !important;
   }
 
-  /* ── 6. Task input form — add side padding ── */
+  /* ── 6. Task / Goals input forms — add side margin ── */
   #tasks-board-column form,
   #goals-board-column form {
     margin-left: 0.75rem !important;
@@ -240,15 +251,18 @@
     margin-bottom: 0.75rem !important;
   }
 
-  /* ── 7. Goals insert form background subtle strip ── */
+  /* ── 7. Goals insert form keep rounded corners ── */
   #goals-board-column form {
     border-radius: 0.75rem !important;
   }
 
-  /* ── 8. Pending tasks toggle button — add side margin ── */
+  /* ── 8. Pending tasks toggle button — FIX: width overflow
+     Button has w-full (100% of parent). Adding margin pushes it outside the
+     parent on the right. Use calc(100% - 1.5rem) to account for both margins. ── */
   #mobile-pending-toggle {
+    width: calc(100% - 1.5rem) !important;
     margin-left: 0.75rem !important;
-    margin-right: 0.75rem !important;
+    margin-right: 0 !important;          /* width calc already accounts for right */
     margin-bottom: 0.75rem !important;
   }
 
@@ -259,7 +273,7 @@
     padding-right: 0.75rem !important;
   }
 
-  /* ── 10. Search + action row in Thoughts — add side padding ── */
+  /* ── 10. Search + action row in Thoughts ── */
   #thoughts-board-column > div:nth-child(2),
   #thoughts-board-column > div:nth-child(3) {
     padding-left: 0.75rem !important;
@@ -279,7 +293,7 @@
     margin-bottom: 0 !important;
   }
 
-  /* ── 13. Flat native rows: Task item cards → no bg, no border, hairline divider ── */
+  /* ── 13. Flat native rows: Task item cards ── */
   #tasks-list-container {
     padding-left: 0 !important;
     padding-right: 0 !important;
@@ -316,38 +330,41 @@
     border-bottom: none !important;
   }
 
-  /* ── 15. Flat native rows: Thought item cards ── */
+  /* ── 15. Thought cards — FIX: add subtle background tint + stronger
+     separator so individual notes are clearly distinguishable from each other.
+     Pure transparent + faint divider made cards look like one merged block. ── */
   #thoughts-list-container {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    gap: 0.375rem !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   #thoughts-list-container .thought-card {
-    background: transparent !important;
-    border: none !important;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.15) !important;
-    border-radius: 0 !important;
+    background: rgba(148, 163, 184, 0.05) !important; /* very subtle tint to show card bounds */
+    border: 1px solid rgba(148, 163, 184, 0.18) !important; /* thin full border for distinct card */
+    border-radius: 0.625rem !important;   /* slight rounding — native app card feel */
     box-shadow: none !important;
-    padding: 0.625rem 1rem !important;
-    transform: none !important;  /* disable hover scale on touch devices */
+    padding: 0.75rem 0.875rem !important; /* slightly more vertical breathing room */
+    transform: none !important;           /* no hover scale on touch */
+    margin-bottom: 0 !important;          /* gap handled by flex gap above */
   }
 
   #thoughts-list-container .thought-card:hover {
     transform: none !important;
   }
 
-  #thoughts-list-container .thought-card:last-of-type {
-    border-bottom: none !important;
-  }
-
-  /* ── 16. Dark mode hairline dividers ── */
+  /* ── 16. Dark mode overrides ── */
   .dark #tasks-list-container .task-card-wrapper {
-    border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.07) !important;
   }
   .dark #goals-list-container > div {
-    border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.07) !important;
   }
   .dark #thoughts-list-container .thought-card {
-    border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
   }
 }
+
