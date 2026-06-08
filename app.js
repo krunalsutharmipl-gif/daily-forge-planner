@@ -745,7 +745,7 @@ function renderTasks() {
       }
 
       if (boardCol) {
-        boardCol.className = "lg:col-span-8 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10";
+        boardCol.className = "lg:col-span-8 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10 shrink-0";
       }
       listContainer.innerHTML = uniquePendingDates.map(dateStr => {
         const tasksForDate = pendingPastTasks.filter(t => t.targetDate === dateStr);
@@ -817,7 +817,7 @@ function renderTasks() {
       }
       sidebarContainer.className = "hidden";
       if (boardCol) {
-        boardCol.className = "lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10";
+        boardCol.className = "lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10 shrink-0";
       }
       listContainer.innerHTML = '';
     }

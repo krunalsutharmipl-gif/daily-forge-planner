@@ -215,7 +215,7 @@
     <div id="tab-content" class="transition-all duration-205 flex-1 overflow-hidden flex flex-col w-full min-h-0">
 
       <!-- 1. Workspace (Dashboard) View -->
-      <div id="content-dashboard" class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 items-start flex-1 overflow-y-auto w-full pr-1 pb-24 lg:pb-0">
+      <div id="content-dashboard" class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 items-stretch lg:items-start flex-1 overflow-y-auto w-full pr-1 pb-24 lg:pb-0">
 
         <!-- Welcome Banner -->
         <div
@@ -238,7 +238,7 @@
         </div>
 
         <!-- Left Column: User Profile & Notification Manager -->
-        <div class="lg:col-span-4 space-y-4 lg:space-y-6">
+        <div class="lg:col-span-4 w-full space-y-4 lg:space-y-6">
 
           <!-- User Profile Card -->
           <div
@@ -380,7 +380,7 @@
         </div>
 
         <!-- Right Column: Analysis Panel -->
-        <div class="lg:col-span-8">
+        <div class="lg:col-span-8 w-full">
 
           <div
             class="glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 mb-4 lg:mb-6">
@@ -472,15 +472,19 @@
 
                 <!-- Explanatory Index -->
                 <div class="space-y-2.5 text-xs text-slate-600 dark:text-slate-400 flex-1 font-sans font-semibold">
-                  <div class="flex items-center gap-2">
-                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></div>
-                    <span class="text-slate-800 dark:text-slate-200 font-display">Outer Ring (Tasks)</span>
-                    <span class="font-normal opacity-85">Completion rate of day-wise logs.</span>
+                  <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                    <div class="flex items-center gap-2">
+                      <div class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></div>
+                      <span class="text-slate-800 dark:text-slate-200 font-display">Outer Ring (Tasks)</span>
+                    </div>
+                    <span class="font-normal opacity-85 pl-4 sm:pl-0">Completion rate of day-wise logs.</span>
                   </div>
-                  <div class="flex items-center gap-2">
-                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></div>
-                    <span class="text-slate-800 dark:text-slate-200 font-display">Inner Ring (Goals)</span>
-                    <span class="font-normal opacity-85">Percentage of targets met.</span>
+                  <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                    <div class="flex items-center gap-2">
+                      <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></div>
+                      <span class="text-slate-800 dark:text-slate-200 font-display">Inner Ring (Goals)</span>
+                    </div>
+                    <span class="font-normal opacity-85 pl-4 sm:pl-0">Percentage of targets met.</span>
                   </div>
                   <p class="text-[10px] text-slate-400 leading-normal max-w-sm font-normal">
                     Circular visual indices automatically calculate relative pacing metrics based on browser data.
@@ -524,9 +528,9 @@
       <div id="content-tasks" class="hidden max-w-5xl mx-auto space-y-3 sm:space-y-4 flex-1 flex flex-col overflow-hidden w-full min-h-0">
 
         <!-- Main Layout Grid -->
-        <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-start w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0 pb-24 lg:pb-0">
+        <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-stretch w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0 pb-24 lg:pb-0">
           <!-- Left Column: Tasks Board -->
-          <div id="tasks-board-column" class="lg:col-span-8 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10">
+          <div id="tasks-board-column" class="lg:col-span-8 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-rose-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10 shrink-0">
 
             <!-- Date Navigation Bar -->
             <div
@@ -597,7 +601,7 @@
           </div>
 
           <!-- Right Column: Sidebar -->
-          <div class="lg:col-span-4 space-y-4 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden">
+          <div class="lg:col-span-4 space-y-4 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden shrink-0">
             <!-- Mobile Toggle Button for Pending Tasks -->
             <button id="mobile-pending-toggle" onclick="toggleMobilePendingTasks()" class="w-full lg:hidden py-2.5 px-4 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 font-bold text-xs rounded-xl border border-amber-500/15 flex items-center justify-between transition cursor-pointer select-none hidden mb-2">
               <span class="flex items-center gap-2">
@@ -629,7 +633,7 @@
       <div id="content-goals" class="hidden max-w-5xl mx-auto space-y-3 sm:space-y-4 flex-1 flex flex-col overflow-hidden w-full min-h-0">
 
         <!-- Main Layout Grid -->
-        <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-start w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0 pb-24 lg:pb-0">
+        <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-stretch w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0 pb-24 lg:pb-0">
           <!-- Main Column: Goals Card -->
           <div
             class="lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-emerald-500 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10">
@@ -711,7 +715,7 @@
       <div id="content-thoughts" class="hidden max-w-5xl mx-auto space-y-3 sm:space-y-4 flex-1 flex flex-col overflow-hidden w-full min-h-0">
 
         <!-- Main Layout Grid -->
-        <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-start w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0 pb-24 lg:pb-0">
+        <div class="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 lg:items-stretch items-stretch w-full flex-1 overflow-y-auto lg:overflow-hidden min-h-0 pb-24 lg:pb-0">
           <!-- Main Column: Thoughts Card -->
           <div
             class="lg:col-span-12 glass-card rounded-2xl p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 font-sans border-l-4 border-l-violet-600 w-full h-auto lg:h-full flex flex-col overflow-visible lg:overflow-hidden min-h-0 lg:min-h-0 relative z-10">
