@@ -151,6 +151,13 @@ window.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.task-card-wrapper').forEach(card => {
       card.classList.remove('z-40', 'relative');
     });
+    // Close goal dropdown menus when clicking outside
+    document.querySelectorAll('[id^="goal-menu-"]').forEach(menu => {
+      menu.classList.add('hidden');
+    });
+    document.querySelectorAll('.goal-card-wrapper').forEach(card => {
+      card.classList.remove('z-40', 'relative');
+    });
   });
 
   // Initialize Session / Auth Check
@@ -1338,7 +1345,7 @@ function renderGoals() {
   }
 
   container.innerHTML = filtered.map(goal => `
-    <div class="p-2.5 border transition duration-200 rounded-xl flex items-center justify-between gap-4 select-none ${goal.completed ? 'bg-slate-50/50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/80 opacity-60 shadow-none' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm'}">
+    <div class="goal-card-wrapper p-2.5 border transition duration-200 rounded-xl flex items-center justify-between gap-4 select-none ${goal.completed ? 'bg-slate-50/50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/80 opacity-60 shadow-none' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm'}">
       <div class="flex items-center gap-3.5 min-w-0 flex-1">
         <button onclick="toggleGoal('${goal.id}')" class="shrink-0 cursor-pointer rounded-lg p-0.5 transition-colors ${goal.completed ? 'text-emerald-600 dark:text-emerald-500' : 'text-slate-400 hover:text-emerald-500'}">
           <i data-lucide="${goal.completed ? 'check-circle' : 'circle'}" class="w-5 h-5"></i>
@@ -1347,13 +1354,34 @@ function renderGoals() {
           <p class="text-xs font-bold tracking-tight leading-tight ${goal.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-100'}">${goal.title}</p>
           <div class="flex items-center gap-1 text-[9px] text-slate-400 mt-1 font-mono font-semibold">
             <i data-lucide="calendar" class="w-3 h-3 text-emerald-500"></i>
-            Target Date: ${new Date(goal.targetDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+            Target: ${new Date(goal.targetDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
           </div>
         </div>
       </div>
-      <button onclick="deleteGoal('${goal.id}')" class="text-slate-400 hover:text-rose-600 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer" title="Delete target">
-        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-      </button>
+
+      <!-- Three Dot Menu -->
+      <div class="flex items-center gap-1 shrink-0 relative">
+        <button onclick="toggleGoalMenu('${goal.id}', event)" type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer">
+          <i data-lucide="more-vertical" class="w-3.5 h-3.5"></i>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div id="goal-menu-${goal.id}" class="hidden absolute right-0 top-full mt-1 w-44 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-1.5 z-30 font-sans">
+          <button onclick="editGoal('${goal.id}', event)" type="button" class="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold flex items-center gap-2 cursor-pointer">
+            <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Edit Goal
+          </button>
+          <button onclick="triggerChangeGoalDate('${goal.id}', event)" type="button" class="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold flex items-center gap-2 cursor-pointer">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Change Date
+          </button>
+          <div class="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
+          <button onclick="deleteGoal('${goal.id}')" type="button" class="w-full text-left px-3 py-2 text-xs text-rose-600 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 font-bold flex items-center gap-2 cursor-pointer">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete Goal
+          </button>
+        </div>
+
+        <!-- Hidden Date Input for Rescheduling -->
+        <input type="date" id="change-goal-date-input-${goal.id}" onchange="changeGoalDate('${goal.id}', this.value)" onclick="event.stopPropagation()" class="absolute pointer-events-none opacity-0 w-0 h-0">
+      </div>
     </div>
   `).join('') + '<div class="h-4 shrink-0"></div>';
 }
@@ -1417,9 +1445,147 @@ function deleteGoal(goalId) {
     if (approved) {
       goals = goals.filter(g => g.id !== goalId);
       showToast("🗑️ Target Removed", "Focus target has been deleted.", "info");
-saveState();
+      saveState();
     }
   });
+}
+
+// ----------------------------------------------------
+// GOAL MENU / ACTIONS MODULE
+// ----------------------------------------------------
+let activeSheetGoalId = null;
+
+function toggleGoalMenu(goalId, event) {
+  if (event) event.stopPropagation();
+
+  // Use bottom action sheet on mobile
+  const isMobile = window.innerWidth < 1024;
+  if (isMobile) {
+    openGoalActionsSheet(goalId);
+    return;
+  }
+
+  // Hide all other goal menus
+  document.querySelectorAll('[id^="goal-menu-"]').forEach(menu => {
+    if (menu.id !== `goal-menu-${goalId}`) {
+      menu.classList.add('hidden');
+      const parentCard = menu.closest('.goal-card-wrapper');
+      if (parentCard) parentCard.classList.remove('z-40', 'relative');
+    }
+  });
+
+  const menu = document.getElementById(`goal-menu-${goalId}`);
+  if (menu) {
+    menu.classList.toggle('hidden');
+    const parentCard = menu.closest('.goal-card-wrapper');
+    if (parentCard) {
+      if (!menu.classList.contains('hidden')) {
+        parentCard.classList.add('z-40', 'relative');
+      } else {
+        parentCard.classList.remove('z-40', 'relative');
+      }
+    }
+  }
+}
+
+function openGoalActionsSheet(goalId) {
+  activeSheetGoalId = goalId;
+  const goal = goals.find(g => g.id === goalId);
+  if (!goal) return;
+
+  const sheet = document.getElementById('goal-actions-sheet');
+  const titleEl = document.getElementById('sheet-goal-title');
+  if (sheet && titleEl) {
+    titleEl.textContent = goal.title;
+    sheet.classList.remove('hidden');
+    const content = sheet.querySelector('.animate-slideUp');
+    if (content) {
+      content.style.transform = 'translateY(100%)';
+      setTimeout(() => { content.style.transform = 'translateY(0)'; }, 10);
+    }
+    safeCreateIcons();
+  }
+}
+
+function closeGoalActionsSheet() {
+  const sheet = document.getElementById('goal-actions-sheet');
+  if (sheet) {
+    const content = sheet.querySelector('.animate-slideUp');
+    if (content) content.style.transform = 'translateY(100%)';
+    setTimeout(() => {
+      sheet.classList.add('hidden');
+      activeSheetGoalId = null;
+    }, 200);
+  }
+}
+
+function executeGoalSheetAction(action) {
+  const goalId = activeSheetGoalId;
+  closeGoalActionsSheet();
+  if (!goalId) return;
+  setTimeout(() => {
+    if (action === 'edit') {
+      editGoal(goalId);
+    } else if (action === 'change-date') {
+      triggerChangeGoalDate(goalId);
+    } else if (action === 'delete') {
+      deleteGoal(goalId);
+    }
+  }, 250);
+}
+
+function editGoal(goalId, event) {
+  if (event) event.stopPropagation();
+  // Close dropdown if open
+  const menu = document.getElementById(`goal-menu-${goalId}`);
+  if (menu) {
+    menu.classList.add('hidden');
+    const parentCard = menu.closest('.goal-card-wrapper');
+    if (parentCard) parentCard.classList.remove('z-40', 'relative');
+  }
+
+  const goal = goals.find(g => g.id === goalId);
+  if (!goal) return;
+
+  const newTitle = prompt('Edit goal title:', goal.title);
+  if (newTitle && newTitle.trim() && newTitle.trim() !== goal.title) {
+    goal.title = newTitle.trim();
+    showToast('✏️ Goal Updated', `Goal renamed to "${goal.title}".`, 'success');
+    saveState();
+  }
+}
+
+function triggerChangeGoalDate(goalId, event) {
+  if (event) event.stopPropagation();
+  // Close dropdown if open
+  const menu = document.getElementById(`goal-menu-${goalId}`);
+  if (menu) {
+    menu.classList.add('hidden');
+    const parentCard = menu.closest('.goal-card-wrapper');
+    if (parentCard) parentCard.classList.remove('z-40', 'relative');
+  }
+
+  const dateInput = document.getElementById(`change-goal-date-input-${goalId}`);
+  if (dateInput) {
+    // Pre-fill with current goal date
+    const goal = goals.find(g => g.id === goalId);
+    if (goal) dateInput.value = goal.targetDate;
+    if (typeof dateInput.showPicker === 'function') {
+      dateInput.showPicker();
+    } else {
+      dateInput.click();
+    }
+  }
+}
+
+function changeGoalDate(goalId, newDate) {
+  if (!newDate) return;
+  const goal = goals.find(g => g.id === goalId);
+  if (!goal) return;
+  const oldDate = goal.targetDate;
+  goal.targetDate = newDate;
+  showToast('📅 Date Updated', `Goal target moved from ${oldDate} to ${newDate}.`, 'success');
+  saveState();
 }
 
 function getFilteredThoughtsList() {
